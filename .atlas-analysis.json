@@ -1,0 +1,104 @@
+{
+  "projectType": "saas",
+  "projectName": "NoteMV",
+  "projectDescription": "A collaborative note-taking and project management platform with real-time features, Kanban boards, and rich text editing.",
+  "theme": "aspen",
+  "primaryColor": "#f1d262",
+  "lightColor": "#7c6c34",
+  "darkColor": "#19160b",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/dashboard",
+              "features/projects",
+              "features/editor",
+              "features/kanban",
+              "features/collaboration"
+            ]
+          },
+          {
+            "group": "User Guide",
+            "pages": [
+              "guide/authentication",
+              "guide/creating-notes",
+              "guide/managing-projects",
+              "guide/sharing-collaboration",
+              "guide/documents-resources"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "advanced/firebase-setup",
+              "advanced/customization",
+              "advanced/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Services",
+            "pages": [
+              "api/notas",
+              "api/proyectos",
+              "api/chat",
+              "api/historial"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "api/dashboard-layout",
+              "api/editor-view",
+              "api/kanban-board",
+              "api/project-chat"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Real-time collaborative editing with Firebase",
+    "Kanban board for task management",
+    "Rich text editor with Quill",
+    "Project-based organization with folders",
+    "Google authentication",
+    "Document attachments and resources",
+    "Role-based permissions (owner, editor, viewer)",
+    "Project chat functionality",
+    "Trash/recovery system"
+  ],
+  "publicApiSurface": [
+    "crearNota(userId, titulo, contenido, etiqueta, proyectoId, carpetaId, cover)",
+    "actualizarNota(id, titulo, contenido, etiqueta, cover)",
+    "obtenerNotas(userId)",
+    "moverNotaAPapelera(id)",
+    "crearProyecto(userId, ownerEmail, nombre, descripcion)",
+    "obtenerProyectos(userId, userEmail)",
+    "agregarColaborador(proyectoId, email, rol)",
+    "crearCarpeta(proyectoId, nombre, carpetaPadreId)",
+    "obtenerTareas(proyectoId)",
+    "DashboardLayout",
+    "EditorView",
+    "KanbanBoard",
+    "ProjectsView",
+    "DocumentsView"
+  ]
+}
