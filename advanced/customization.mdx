@@ -1,0 +1,526 @@
+---
+title: 'Customization Guide'
+description: 'Customize NoteMV appearance, themes, and UI components'
+icon: 'palette'
+---
+
+# Customization Guide
+
+NoteMV is built with Tailwind CSS and React, making it highly customizable. This guide covers theming, styling, and component modifications.
+
+## Tailwind CSS Configuration
+
+NoteMV uses Tailwind CSS for utility-first styling. The configuration is minimal by default, allowing easy customization.
+
+### Base Configuration
+
+```javascript tailwind.config.js
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+### Extending the Theme
+
+Add custom colors, fonts, and spacing to match your brand:
+
+```javascript tailwind.config.js
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        // Custom brand colors
+        brand: {
+          primary: '#22c55e',    // Green accent
+          secondary: '#0ea5e9',  // Blue accent
+          dark: '#050505',       // Background
+          darker: '#0a0a0a',     // Sidebar background
+        },
+        // Custom status colors
+        status: {
+          online: '#10b981',
+          away: '#f59e0b',
+          offline: '#6b7280',
+        }
+      },
+      fontFamily: {
+        mono: ['"Courier New"', 'Courier', 'monospace'],
+        display: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      animation: {
+        'glow': 'glow 2s ease-in-out infinite alternate',
+        'fadeIn': 'fadeIn 0.3s ease-in',
+      },
+      keyframes: {
+        glow: {
+          '0%': { boxShadow: '0 0 5px rgba(34, 197, 94, 0.5)' },
+          '100%': { boxShadow: '0 0 20px rgba(34, 197, 94, 1)' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+    },
+  },
+  plugins: [],
+}
+```
+
+<Info>
+  After modifying `tailwind.config.js`, restart your development server to see changes.
+</Info>
+
+## Color Schemes
+
+NoteMV uses a cyberpunk-inspired dark theme with neon accents. Here's the core color palette:
+
+### Primary Colors
+
+```css
+/* Background Colors */
+--bg-primary: #050505;      /* Main background */
+--bg-secondary: #0a0a0a;    /* Sidebar, cards */
+--bg-tertiary: #1a1a1a;     /* Hover states */
+
+/* Accent Colors */
+--accent-green: #22c55e;    /* Primary actions, success */
+--accent-blue: #0ea5e9;     /* Secondary actions, info */
+--accent-purple: #a855f7;   /* Projects, special features */
+--accent-red: #ef4444;      /* Danger, delete actions */
+--accent-yellow: #f59e0b;   /* Warnings, alerts */
+
+/* Text Colors */
+--text-primary: #ffffff;    /* Headings */
+--text-secondary: #d1d5db;  /* Body text */
+--text-tertiary: #6b7280;   /* Muted text */
+```
+
+### Component Color Usage
+
+Here's where each color is used throughout the application:
+
+| Component | Color | Tailwind Class |
+|-----------|-------|----------------|
+| Sidebar Active | Green | `bg-green-500/10 border-green-500` |
+| Project Items | Purple | `text-purple-400 border-purple-500` |
+| Snippets | Blue | `text-blue-400 border-blue-500` |
+| Trash | Red | `text-red-400 border-red-500` |
+| Buttons (Primary) | Green | `bg-green-600 hover:bg-green-500` |
+| Buttons (Danger) | Red | `bg-red-600 hover:bg-red-500` |
+| Status Indicators | Green | `bg-green-500 animate-pulse` |
+
+### Creating a Custom Theme
+
+To create your own color scheme, modify the base colors in your components:
+
+```jsx src/componentes/DashboardLayout.jsx
+// Original (Cyberpunk Green)
+<div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+
+// Custom (Purple Theme)
+<div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+```
+
+<Warning>
+  Ensure sufficient contrast ratios for accessibility (WCAG AA: 4.5:1 for normal text, 3:1 for large text).
+</Warning>
+
+## Component Customization
+
+### Sidebar Styling
+
+The sidebar is defined in `src/componentes/DashboardLayout.jsx:src/componentes/DashboardLayout.jsx:60`:
+
+```jsx
+<aside className="w-64 bg-[#0a0a0a] border-r border-green-500/20 flex flex-col p-4">
+  {/* Header */}
+  <div className="mb-8 flex items-center gap-2 text-green-400 font-bold tracking-widest">
+    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div> 
+    NOTEMV_OS
+  </div>
+
+  {/* Navigation */}
+  <nav className="flex-1 space-y-2">
+    <div 
+      onClick={() => setCurrentView('dashboard')} 
+      className={`
+        px-4 py-2 cursor-pointer flex items-center gap-3 transition-colors
+        ${currentView === 'dashboard' 
+          ? 'bg-green-500/10 text-green-400 border-l-2 border-green-500' 
+          : 'hover:bg-white/5'
+        }
+      `}
+    >
+      <TerminalIcon /> Dashboard
+    </div>
+  </nav>
+</aside>
+```
+
+#### Customization Options
+
+**Width**: Change sidebar width from `w-64` (256px) to:
+- `w-48` (192px) - Narrow
+- `w-72` (288px) - Wide
+- `w-80` (320px) - Extra wide
+
+**Border Color**: Modify `border-green-500/20` to:
+- `border-blue-500/20` - Blue border
+- `border-purple-500/30` - More prominent purple
+- `border-white/10` - Subtle white
+
+**Active State Background**: Change `bg-green-500/10` to match your theme:
+- `bg-blue-500/10 text-blue-400 border-l-2 border-blue-500`
+- `bg-purple-500/10 text-purple-400 border-l-2 border-purple-500`
+
+### Header Customization
+
+The header displays the current view and search bar:
+
+```jsx src/componentes/DashboardLayout.jsx
+<header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-[#050505]/50 backdrop-blur-sm z-10">
+  <h2 className="text-xl text-white">
+    <span className="text-green-500">root</span>
+    <span className="text-gray-600">/</span>
+    {currentView}
+  </h2>
+  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded border border-white/10 text-sm text-gray-500 min-w-[300px]">
+    <span>🔍</span> <span>Buscar...</span>
+  </div>
+</header>
+```
+
+#### Custom Breadcrumb Styling
+
+```jsx
+{/* Modern gradient style */}
+<h2 className="text-xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+  {currentView}
+</h2>
+
+{/* Minimal style */}
+<h2 className="text-sm uppercase tracking-widest text-gray-400">
+  {currentView}
+</h2>
+
+{/* Terminal style (original) */}
+<h2 className="text-xl text-white">
+  <span className="text-green-500">root</span>
+  <span className="text-gray-600">/</span>
+  {currentView}
+</h2>
+```
+
+### Welcome Screen Customization
+
+The 3D welcome scene uses React Three Fiber. Customize colors and effects:
+
+```jsx src/componentes/WelcomeScene.jsx
+// Change core glow color
+<pointLight position={[-5, -5, 5]} intensity={10} color="#22c55e" />
+// Change to blue: color="#0ea5e9"
+// Change to purple: color="#a855f7"
+
+// Modify data ring colors
+<meshStandardMaterial 
+  color="#22c55e"           // Base color
+  emissive="#22c55e"        // Glow color
+  emissiveIntensity={2}     // Glow strength (0-5)
+  toneMapped={false} 
+/>
+
+// Title gradient
+<h1 className="text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500">
+  NOTEMV
+</h1>
+// Custom gradient:
+<h1 className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-blue-500 to-purple-600">
+  NOTEMV
+</h1>
+```
+
+### Button Styles
+
+NoteMV uses consistent button styles across the application:
+
+```jsx
+{/* Primary Button (Green) */}
+<button className="px-6 py-2 bg-green-600 hover:bg-green-500 text-white font-mono transition-all">
+  Save
+</button>
+
+{/* Secondary Button (Outline) */}
+<button className="px-6 py-2 border border-green-500 text-green-400 hover:bg-green-500/10 font-mono transition-all">
+  Cancel
+</button>
+
+{/* Danger Button (Red) */}
+<button className="px-6 py-2 bg-red-600 hover:bg-red-500 text-white font-mono transition-all">
+  Delete
+</button>
+
+{/* Ghost Button */}
+<button className="px-6 py-2 text-gray-400 hover:text-white hover:bg-white/5 font-mono transition-all">
+  Skip
+</button>
+```
+
+## Typography
+
+NoteMV uses monospace fonts for the terminal aesthetic:
+
+```css src/index.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-mono text-gray-300 bg-[#050505];
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-white;
+  }
+}
+```
+
+### Custom Font Implementation
+
+1. **Add Google Fonts** to `index.html`:
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+```
+
+2. **Update Tailwind config**:
+
+```javascript tailwind.config.js
+theme: {
+  extend: {
+    fontFamily: {
+      mono: ['"JetBrains Mono"', 'monospace'],
+    },
+  },
+},
+```
+
+3. **Apply in components**:
+
+```jsx
+<div className="font-mono">Terminal Text</div>
+```
+
+## Grid Background Effect
+
+The animated grid background is applied to the main content area:
+
+```jsx src/componentes/DashboardLayout.jsx
+<div className="absolute inset-0 bg-[linear-gradient(rgba(18,18,18,0)_1px,transparent_1px),linear-gradient(90deg,rgba(18,18,18,0)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 pointer-events-none">
+</div>
+```
+
+### Customization Options
+
+```jsx
+{/* Larger grid (60px) */}
+<div className="... bg-[size:60px_60px] ..."></div>
+
+{/* Smaller grid (20px) */}
+<div className="... bg-[size:20px_20px] ..."></div>
+
+{/* More visible (higher opacity) */}
+<div className="... opacity-40 ..."></div>
+
+{/* Colored grid (green tint) */}
+<div className="... bg-[linear-gradient(rgba(34,197,94,0.1)_1px,transparent_1px),...] ..."></div>
+```
+
+<Note>
+  The grid background is only visible on non-editor views to maintain focus on content editing.
+</Note>
+
+## Glass Morphism Effects
+
+Add modern glassmorphism to cards and modals:
+
+```jsx
+<div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-lg p-6">
+  {/* Content */}
+</div>
+
+{/* Stronger effect */}
+<div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg p-6 shadow-2xl">
+  {/* Content */}
+</div>
+```
+
+## Animations and Transitions
+
+### Pulse Animation (Status Indicators)
+
+```jsx
+<div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+```
+
+### Hover Transitions
+
+```jsx
+<button className="transition-all duration-300 hover:scale-105 hover:shadow-lg">
+  Hover Me
+</button>
+```
+
+### Fade In Animation
+
+Add to `tailwind.config.js`:
+
+```javascript
+keyframes: {
+  fadeIn: {
+    '0%': { opacity: '0', transform: 'translateY(10px)' },
+    '100%': { opacity: '1', transform: 'translateY(0)' },
+  },
+},
+animation: {
+  'fadeIn': 'fadeIn 0.3s ease-in',
+}
+```
+
+Use in components:
+
+```jsx
+<div className="animate-fadeIn">
+  Content appears smoothly
+</div>
+```
+
+## Icon Customization
+
+NoteMV uses emoji icons by default. Replace with icon libraries:
+
+### Using Lucide React
+
+1. Install:
+```bash
+npm install lucide-react
+```
+
+2. Replace icons:
+
+```jsx
+import { Terminal, Folder, FileCode, Trash2 } from 'lucide-react';
+
+const TerminalIcon = () => <Terminal size={18} />;
+const FolderIcon = () => <Folder size={18} />;
+const CodeIcon = () => <FileCode size={18} />;
+const TrashIcon = () => <Trash2 size={18} />;
+```
+
+### Using React Icons
+
+```bash
+npm install react-icons
+```
+
+```jsx
+import { FiTerminal, FiFolder, FiCode, FiTrash2 } from 'react-icons/fi';
+```
+
+## Responsive Design
+
+Customize breakpoints for different screen sizes:
+
+```jsx
+{/* Hide sidebar on mobile */}
+<aside className="hidden md:flex w-64 bg-[#0a0a0a] ...">
+
+{/* Responsive text sizes */}
+<h1 className="text-4xl md:text-6xl lg:text-8xl">
+
+{/* Responsive padding */}
+<div className="p-4 md:p-6 lg:p-8">
+```
+
+## Dark Mode Toggle (Optional)
+
+While NoteMV is dark by default, you can add a light mode:
+
+```jsx
+const [darkMode, setDarkMode] = useState(true);
+
+return (
+  <div className={darkMode ? 'dark' : ''}>
+    <div className="bg-white dark:bg-[#050505] text-black dark:text-gray-300">
+      {/* Content */}
+    </div>
+  </div>
+);
+```
+
+Update `tailwind.config.js`:
+
+```javascript
+module.exports = {
+  darkMode: 'class',
+  // ... rest of config
+}
+```
+
+## CSS Custom Properties
+
+For global theme switching, use CSS variables:
+
+```css src/index.css
+:root {
+  --color-primary: #22c55e;
+  --color-secondary: #0ea5e9;
+  --color-background: #050505;
+}
+
+[data-theme="purple"] {
+  --color-primary: #a855f7;
+  --color-secondary: #ec4899;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+}
+```
+
+```jsx
+<div data-theme={selectedTheme}>
+  {/* App content */}
+</div>
+```
+
+## Best Practices
+
+1. **Consistency**: Maintain consistent spacing, colors, and typography throughout
+2. **Performance**: Avoid excessive animations on low-end devices
+3. **Accessibility**: Ensure color contrast meets WCAG guidelines
+4. **Responsive**: Test on multiple screen sizes
+5. **Dark Theme**: Optimize for eye comfort with appropriate contrast
+
+<Warning>
+  Always test customizations in both development and production builds, as some Tailwind optimizations may affect custom styles.
+</Warning>
+
+## Next Steps
+
+- Explore [Component Library](/components) for pre-built UI elements
+- Learn about [Performance Optimization](/advanced/performance)
+- Check [Accessibility Guidelines](/advanced/accessibility)

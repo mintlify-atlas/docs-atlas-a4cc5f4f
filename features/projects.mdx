@@ -1,0 +1,452 @@
+---
+title: 'Projects'
+description: 'Collaborative workspaces for organizing documents, tasks, and team communication'
+icon: 'folder-open'
+---
+
+## Overview
+
+Projects in NoteMV are collaborative workspaces where teams can organize documents, manage tasks, and communicate in real-time. Each project acts as a container for related content with full permission management.
+
+<CardGroup cols={2}>
+  <Card title="Hierarchical Structure" icon="sitemap">
+    Organize with folders, documents, and nested structures
+  </Card>
+  <Card title="Team Collaboration" icon="users">
+    Invite team members with granular role-based permissions
+  </Card>
+  <Card title="Integrated Tasks" icon="list-check">
+    Built-in Kanban board for project task management
+  </Card>
+  <Card title="Real-Time Chat" icon="messages">
+    Terminal-style chat for instant team communication
+  </Card>
+</CardGroup>
+
+## Creating Projects
+
+<Steps>
+  <Step title="Navigate to Projects">
+    Click **"Mis Proyectos"** in the sidebar
+  </Step>
+  
+  <Step title="Click '+ PROYECTO'">
+    Green button in the top-right corner
+  </Step>
+  
+  <Step title="Name Your Project">
+    Enter a descriptive project name
+  </Step>
+  
+  <Step title="Start Organizing">
+    Your new project opens immediately, ready for content
+  </Step>
+</Steps>
+
+<Note>
+  You are automatically assigned as the **Owner** of projects you create, giving you full control over settings and permissions.
+</Note>
+
+## Project Structure
+
+### Overview Dashboard
+
+When you open a project, you see a comprehensive dashboard:
+
+```
+📂 Project Name [Dueño]
+Description text here...
+
+┌─────────────┬─────────────┬─────────────┐
+│  POR HACER  │ EN PROCESO  │ TERMINADO   │
+│     5/12    │     3/12    │     4/12    │
+│  ████░░░░   │  ██░░░░░░   │  ███░░░░░   │
+└─────────────┴─────────────┴─────────────┘
+
+[Archivos] [Tareas] [Documentos]
+```
+
+### Task Metrics Cards
+
+Three live metric cards display task progress:
+
+<Tabs>
+  <Tab title="Por Hacer">
+    **Red-themed card** showing tasks in the "todo" state
+    
+    - Count of pending tasks
+    - Percentage of total tasks
+    - Visual progress bar
+    - Updates in real-time
+  </Tab>
+  
+  <Tab title="En Proceso">
+    **Yellow-themed card** for active work
+    
+    - Tasks currently being worked on
+    - Active workload indicator
+    - Dynamic progress tracking
+  </Tab>
+  
+  <Tab title="Terminado">
+    **Green-themed card** for completed work
+    
+    - Finished tasks count
+    - Completion percentage
+    - Team productivity metric
+  </Tab>
+</Tabs>
+
+### Tab Navigation
+
+Projects have three main sections:
+
+<CardGroup cols={3}>
+  <Card title="Archivos" icon="file">
+    Document storage with folders and hierarchy
+  </Card>
+  <Card title="Tareas" icon="check-square">
+    Kanban board for task management
+  </Card>
+  <Card title="Documentos" icon="link">
+    External links and reference materials
+  </Card>
+</CardGroup>
+
+## File Management
+
+### Folder Organization
+
+<Accordion title="Creating Folders">
+  **Steps:**
+  1. Click **"📁+ Nueva Carpeta"** button
+  2. Enter folder name
+  3. Folder appears instantly in current location
+  4. Navigate by clicking to enter nested levels
+</Accordion>
+
+<Accordion title="Breadcrumb Navigation">
+  The breadcrumb trail shows your location:
+  
+  ```
+  Inicio / Folder Name / Subfolder
+  ```
+  
+  Click any level to jump back up the hierarchy.
+</Accordion>
+
+### Document Storage
+
+Documents (notes) can be organized within folders:
+
+**File Display:**
+- 📄 Document icon
+- Title truncated if too long
+- "Documento" label
+- Hover for quick actions menu
+
+**Creating Documents:**
+
+<Steps>
+  <Step title="Click '📝+ Nuevo Doc'">
+    Opens the editor in project context
+  </Step>
+  
+  <Step title="Write Content">
+    Full rich text editor with all features
+  </Step>
+  
+  <Step title="Auto-Association">
+    Document is automatically linked to current folder/project
+  </Step>
+</Steps>
+
+### Context Menu Actions
+
+Right-click (or click •••) on any item for options:
+
+| Action | Description | Permission Required |
+|--------|-------------|---------------------|
+| ✏ Editar Información | Edit project metadata | Editor or Owner |
+| 📦 Mover a... | Move document to different folder/project | Editor or Owner |
+| 🗑️ Papelera | Move to trash | Editor or Owner |
+
+<Warning>
+  Only project **Owners** can delete entire projects. Editors can only manage documents and folders.
+</Warning>
+
+## Team Collaboration
+
+### Permission Roles
+
+NoteMV uses a three-tier permission system:
+
+<Tabs>
+  <Tab title="Owner (Dueño)">
+    **Full Control** - Only one per project
+    
+    - Edit project information
+    - Invite and remove collaborators
+    - Change user roles
+    - Delete the project
+    - All editor capabilities
+  </Tab>
+  
+  <Tab title="Editor">
+    **Read + Write** - Can modify content
+    
+    - Create, edit, and delete documents
+    - Create and organize folders
+    - Move files between folders
+    - Create and manage tasks
+    - Participate in chat
+  </Tab>
+  
+  <Tab title="Visor (Viewer)">
+    **Read Only** - Cannot make changes
+    
+    - View all documents
+    - Browse folder structure
+    - See tasks and progress
+    - Read chat messages
+    - Cannot edit or create content
+  </Tab>
+</Tabs>
+
+### Inviting Team Members
+
+<Steps>
+  <Step title="Click 'Invitar' Button">
+    Available in project header (Owner only)
+  </Step>
+  
+  <Step title="Enter Email Address">
+    Type the collaborator's email
+  </Step>
+  
+  <Step title="Select Role">
+    Choose between Visor (viewer) or Editor
+  </Step>
+  
+  <Step title="Copy Invitation Link">
+    System generates a shareable link with message
+  </Step>
+</Steps>
+
+<Tip>
+  The invitation link includes the platform URL and project name. Collaborators must have a NoteMV account to access shared projects.
+</Tip>
+
+### Managing Team Members
+
+Click **"👥 Equipo"** to view and manage the team:
+
+**Team Management Panel:**
+
+```
+👑 owner@email.com         [Propietario]
+───────────────────────────────────────
+✏️ editor@email.com        [Editor ▼] 🗑️
+   Agregado: 12/01/2024
+
+👁️ viewer@email.com        [Visor ▼] 🗑️
+   Agregado: 15/01/2024
+```
+
+**Available Actions:**
+- **Change Role** - Dropdown to switch between Editor/Visor
+- **Remove User** - Click trash icon to revoke access
+- **View Join Date** - See when each member was added
+
+<Note>
+  Real-time subscriptions ensure permission changes take effect immediately. If a user loses access, they're automatically kicked from the project.
+</Note>
+
+## Project Settings
+
+### Editing Project Information
+
+<Accordion title="Project Metadata">
+  Click **"Editar Info"** to modify:
+  
+  - **Nombre** - Project title
+  - **Descripción** - Brief project summary
+  - **URL Repositorio** - Link to Git repo or external resource
+  
+  All fields update across all collaborators in real-time.
+</Accordion>
+
+### External Documents Tab
+
+The **"Documentos"** tab manages external links:
+
+**Use Cases:**
+- Link to GitHub repositories
+- Reference Figma designs
+- Connect to Notion wikis
+- Attach API documentation
+- Share Google Docs
+
+<Tip>
+  External documents are stored as metadata on the project, making them instantly accessible to all team members.
+</Tip>
+
+## Moving Content
+
+### Moving Documents Between Projects
+
+<Steps>
+  <Step title="Open Context Menu">
+    Click ••• on a document
+  </Step>
+  
+  <Step title="Select 'Mover a...'">
+    Opens the move dialog
+  </Step>
+  
+  <Step title="Choose Destination">
+    Select target project and folder (or root)
+  </Step>
+  
+  <Step title="Confirm Move">
+    Document relocates with full history preserved
+  </Step>
+</Steps>
+
+<Warning>
+  You can only move documents to projects where you have **Editor** or **Owner** permissions.
+</Warning>
+
+## Shared Projects View
+
+Projects shared with you appear in a separate section:
+
+**"Compartidos conmigo"** displays:
+- Project name and description
+- Owner's email address
+- Your role badge (👁️ Visor or ✏️ Editor)
+- Blue-themed cards to distinguish from owned projects
+
+```
+┌───────────────────────────────┐
+│ 👥 Shared Project     [Editor]│
+│ De: owner@email.com           │
+│ Working on team features...   │
+└───────────────────────────────┘
+```
+
+## Real-Time Features
+
+### Live Synchronization
+
+Projects use Firebase real-time subscriptions:
+
+<CardGroup cols={2}>
+  <Card title="Instant Updates">
+    Changes from any team member appear immediately
+  </Card>
+  <Card title="Permission Sync">
+    Role changes apply without page refresh
+  </Card>
+  <Card title="Task Updates">
+    Kanban board reflects real-time task movements
+  </Card>
+  <Card title="Document Changes">
+    New files and folders appear instantly
+  </Card>
+</CardGroup>
+
+### Project Chat
+
+A floating chat window is available throughout the project:
+
+<Accordion title="Terminal-Style Chat Interface">
+  **Features:**
+  - Terminal aesthetic with green borders
+  - Fixed position in bottom-right corner
+  - Collapsible to save screen space
+  - Red notification badge when minimized
+  - Scroll-to-bottom on new messages
+  - User identification with color-coded prompts
+  
+  **Usage:**
+  ```
+  root@local:~$ Message from owner
+  editor@local:~$ Response from editor
+  ```
+</Accordion>
+
+<Tip>
+  Chat history is persistent and loaded from Firestore in real-time, so new members can see previous conversations.
+</Tip>
+
+## Project Workflows
+
+<AccordionGroup>
+  <Accordion title="Documentation-Heavy Projects">
+    1. Create folder structure (Frontend, Backend, Docs, etc.)
+    2. Add documents to appropriate folders
+    3. Use external Documentos tab for references
+    4. Keep chat open for quick clarifications
+  </Accordion>
+  
+  <Accordion title="Task-Focused Projects">
+    1. Start with Tareas tab for sprint planning
+    2. Create tasks assigned to team members
+    3. Use documents for specs and requirements
+    4. Track progress with metrics dashboard
+  </Accordion>
+  
+  <Accordion title="Hybrid Approach">
+    1. Organize documents by feature/sprint
+    2. Create corresponding tasks in Kanban
+    3. Link documents in task descriptions
+    4. Use chat for standup updates
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Naming Conventions" icon="tag">
+    - Use clear, descriptive project names
+    - Prefix folders by category or phase
+    - Keep document titles concise
+    - Tag documents consistently
+  </Card>
+  
+  <Card title="Permission Management" icon="shield">
+    - Start with Visor for new members
+    - Promote to Editor when trust is established
+    - Review team list regularly
+    - Remove inactive collaborators
+  </Card>
+  
+  <Card title="Organization" icon="folder-tree">
+    - Don't nest folders more than 3 levels deep
+    - Archive completed work to separate folders
+    - Use consistent folder structure across projects
+    - Delete empty or unused folders
+  </Card>
+  
+  <Card title="Communication" icon="comment">
+    - Use chat for quick questions
+    - Document important decisions in notes
+    - Reference documents in chat messages
+    - Keep chat professional and on-topic
+  </Card>
+</CardGroup>
+
+## Related Features
+
+<CardGroup cols={3}>
+  <Card title="Editor" icon="pen" href="/features/editor">
+    Create and edit project documents
+  </Card>
+  <Card title="Kanban" icon="table-columns" href="/features/kanban">
+    Manage project tasks visually
+  </Card>
+  <Card title="Collaboration" icon="users" href="/features/collaboration">
+    Real-time teamwork features
+  </Card>
+</CardGroup>

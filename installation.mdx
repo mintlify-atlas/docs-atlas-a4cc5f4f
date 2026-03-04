@@ -1,0 +1,359 @@
+---
+title: Installation
+description: Set up your local NoteMV development environment with Firebase, React, and Vite.
+---
+
+This guide walks you through setting up NoteMV on your local machine for development.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+<CardGroup cols={2}>
+  <Card title="Node.js" icon="node-js">
+    Version 18.0 or higher
+    
+    [Download Node.js](https://nodejs.org/)
+  </Card>
+  <Card title="Firebase Account" icon="fire">
+    Free account required
+    
+    [Sign up for Firebase](https://firebase.google.com/)
+  </Card>
+</CardGroup>
+
+<Note>
+  Verify your Node.js installation:
+  ```bash
+  node --version
+  npm --version
+  ```
+</Note>
+
+## Clone the Repository
+
+Start by cloning the NoteMV repository to your local machine:
+
+```bash
+git clone <repository-url>
+cd notemv
+```
+
+## Install Dependencies
+
+NoteMV uses npm for package management. Install all required dependencies:
+
+```bash
+npm install
+```
+
+<Details>
+  <summary>Key dependencies installed</summary>
+  
+  **Core Framework:**
+  - `react` (^19.2.0) - UI library
+  - `react-dom` (^19.2.0) - React rendering
+  - `vite` (^7.2.4) - Build tool and dev server
+
+  **Firebase Services:**
+  - `firebase` (^12.7.0) - Backend and authentication
+
+  **Rich Text Editing:**
+  - `react-quill-new` (^3.7.0) - WYSIWYG editor
+  - `quill-blot-formatter` (^1.0.5) - Image formatting
+  - `highlight.js` (^11.11.1) - Syntax highlighting
+
+  **3D Graphics:**
+  - `three` (^0.182.0) - 3D rendering
+  - `@react-three/fiber` (^9.5.0) - React renderer for Three.js
+  - `@react-three/drei` (^10.7.7) - Three.js helpers
+
+  **UI & Utilities:**
+  - `@hello-pangea/dnd` (^18.0.1) - Drag and drop
+  - `tailwindcss` (^3.4.17) - Utility-first CSS
+</Details>
+
+## Configure Firebase
+
+NoteMV uses Firebase for authentication, database, and hosting. Follow these steps to set up your Firebase project.
+
+<Steps>
+  <Step title="Create a Firebase Project">
+    1. Go to the [Firebase Console](https://console.firebase.google.com/)
+    2. Click **Add project**
+    3. Enter a project name (e.g., "notemv-dev")
+    4. Follow the setup wizard
+  </Step>
+
+  <Step title="Enable Authentication">
+    1. In the Firebase console, navigate to **Authentication**
+    2. Click **Get started**
+    3. Enable **Google** as a sign-in provider
+    4. Add your development domain to authorized domains
+  </Step>
+
+  <Step title="Create a Firestore Database">
+    1. Navigate to **Firestore Database**
+    2. Click **Create database**
+    3. Choose **Start in test mode** for development
+    4. Select a region close to your users
+
+    <Warning>
+      Remember to configure security rules before deploying to production!
+    </Warning>
+  </Step>
+
+  <Step title="Get Firebase Configuration">
+    1. Go to **Project Settings** (gear icon)
+    2. Scroll to **Your apps** section
+    3. Click the web icon (`</>`) to add a web app
+    4. Copy your Firebase configuration object
+  </Step>
+</Steps>
+
+## Update Firebase Configuration
+
+Replace the Firebase configuration in `src/firebase.js` with your project credentials:
+
+```javascript src/firebase.js
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
+// Replace with your Firebase configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+const db = getFirestore(app);
+
+export { auth, googleProvider, signInWithPopup, signOut, db };
+```
+
+<Warning>
+  **Security Best Practice**: Never commit Firebase credentials to version control. Use environment variables for production.
+</Warning>
+
+## Configure Firestore Collections
+
+NoteMV uses the following Firestore collections. They'll be created automatically when you add data:
+
+<CodeGroup>
+```json notas
+{
+  "userId": "user_uid",
+  "titulo": "Note title",
+  "contenido": "<p>HTML content</p>",
+  "etiqueta": "React",
+  "proyectoId": "project_id or null",
+  "carpetaId": "folder_id or null",
+  "cover": "image_url",
+  "fecha": "timestamp",
+  "enPapelera": false
+}
+```
+
+```json proyectos
+{
+  "userId": "owner_uid",
+  "ownerEmail": "owner@example.com",
+  "nombre": "Project name",
+  "descripcion": "Project description",
+  "fechaCreacion": "timestamp",
+  "status": "active",
+  "enPapelera": false,
+  "accesos": ["email1@example.com"],
+  "colaboradores": [
+    {"email": "user@example.com", "rol": "editor", "fecha": "timestamp"}
+  ]
+}
+```
+
+```json tareas
+{
+  "proyectoId": "project_id",
+  "titulo": "Task title",
+  "descripcion": "Task details",
+  "fechaVencimiento": "date_string",
+  "prioridad": "alta|media|baja",
+  "asignadoA": "user_email",
+  "estado": "todo|in-progress|done",
+  "fechaCreacion": "timestamp"
+}
+```
+</CodeGroup>
+
+## Run the Development Server
+
+Start the Vite development server:
+
+```bash
+npm run dev
+```
+
+You should see output similar to:
+
+```bash
+VITE v7.2.4  ready in 123 ms
+
+➜  Local:   http://localhost:5173/
+➜  Network: use --host to expose
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+<Note>
+  The dev server includes hot module replacement (HMR) - changes to your code will update instantly without refreshing the page.
+</Note>
+
+## Available Scripts
+
+NoteMV includes several npm scripts for development and production:
+
+<CodeGroup>
+```bash Development
+# Start development server with HMR
+npm run dev
+```
+
+```bash Build
+# Build for production
+npm run build
+
+# Output is written to /dist folder
+```
+
+```bash Preview
+# Preview production build locally
+npm run preview
+```
+
+```bash Lint
+# Run ESLint for code quality checks
+npm run lint
+```
+</CodeGroup>
+
+## Project Structure
+
+Understanding the NoteMV directory structure:
+
+```
+notemv/
+├── src/
+│   ├── componentes/
+│   │   ├── views/           # Main application views
+│   │   │   ├── DashboardHome.jsx
+│   │   │   ├── ProjectsView.jsx
+│   │   │   ├── EditorView.jsx
+│   │   │   └── TrashView.jsx
+│   │   ├── WelcomeScene.jsx # 3D landing page
+│   │   ├── DashboardLayout.jsx
+│   │   ├── ModalCrear.jsx   # Note creation modal
+│   │   └── KanbanBoard.jsx  # Task management
+│   ├── servicios/           # Firebase service functions
+│   │   ├── notas.js         # Note CRUD operations
+│   │   ├── proyectos.js     # Project management
+│   │   ├── chat.js          # Real-time chat
+│   │   └── historial.js     # Version history
+│   ├── firebase.js          # Firebase initialization
+│   ├── App.jsx              # Root component
+│   └── main.jsx             # Entry point
+├── public/                  # Static assets
+├── package.json             # Dependencies
+├── vite.config.js           # Vite configuration
+└── tailwind.config.js       # Tailwind CSS config
+```
+
+## Verify Installation
+
+Test that everything is working correctly:
+
+<Steps>
+  <Step title="Check the Welcome Screen">
+    You should see the 3D animated welcome scene with the NoteMV logo.
+  </Step>
+
+  <Step title="Sign In">
+    Click **CONTINUAR** and authenticate with Google. You should be redirected to the dashboard.
+  </Step>
+
+  <Step title="Create a Test Note">
+    Click **+ Nueva Entrada**, create a note, and save it. Check the Firestore console to verify the data is saved.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Firebase authentication fails">
+    **Solution:**
+    - Verify your Firebase configuration is correct
+    - Check that Google authentication is enabled in Firebase Console
+    - Add `localhost:5173` to authorized domains in Firebase Authentication settings
+  </Accordion>
+
+  <Accordion title="Module not found errors">
+    **Solution:**
+    ```bash
+    # Clear node_modules and reinstall
+    rm -rf node_modules package-lock.json
+    npm install
+    ```
+  </Accordion>
+
+  <Accordion title="Firestore permission denied">
+    **Solution:**
+    - Ensure Firestore rules allow read/write for authenticated users
+    - For development, use test mode:
+    ```javascript
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /{document=**} {
+          allow read, write: if request.auth != null;
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="3D scene not rendering">
+    **Solution:**
+    - Check browser console for WebGL errors
+    - Ensure your browser supports WebGL
+    - Try disabling hardware acceleration in browser settings and re-enabling it
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+Your development environment is ready! Here's what to explore next:
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Create your first project and note
+  </Card>
+  <Card title="Firebase Setup" icon="fire" href="/advanced/firebase-setup">
+    Detailed Firebase configuration and security rules
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/notas">
+    Explore Firebase service functions
+  </Card>
+  <Card title="Customization" icon="paintbrush" href="/advanced/customization">
+    Customize NoteMV's appearance and behavior
+  </Card>
+</CardGroup>
+
+<Note>
+  **Development Tip**: Use the React DevTools and Firebase Emulator Suite for a better development experience.
+</Note>

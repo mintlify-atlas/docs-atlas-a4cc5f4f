@@ -1,80 +1,196 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with NoteMV in minutes. Create your account, build your first project, and start collaborating.
 ---
 
-## Get started in three steps
+Welcome to NoteMV! This guide will take you from account creation to creating your first collaborative project and note in under 5 minutes.
 
-Get your documentation site running locally and make your first customization.
+## Sign In with Google
 
-### Step 1: Set up your local environment
+NoteMV uses Firebase Authentication with Google Sign-In for secure, seamless access.
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+<Steps>
+  <Step title="Click Continue">
+    When you first visit NoteMV, you'll see an immersive 3D welcome scene. Click the **CONTINUAR** button to proceed.
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    <Note>
+      On your first visit, you'll see a development disclaimer. Accept the terms to continue.
+    </Note>
+  </Step>
 
-### Step 2: Deploy your changes
+  <Step title="Authenticate with Google">
+    NoteMV will prompt you to sign in with your Google account. The authentication flow is handled securely through Firebase.
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    ```javascript
+    // Authentication is handled automatically
+    import { auth, googleProvider, signInWithPopup } from './firebase';
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    const result = await signInWithPopup(auth, googleProvider);
+    // You're now authenticated!
+    ```
+  </Step>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Access Your Dashboard">
+    After successful authentication, you'll be redirected to your personal dashboard where you can manage notes, projects, and snippets.
+  </Step>
+</Steps>
 
-### Step 3: Go live
+## Create Your First Project
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+Projects in NoteMV help you organize related notes and collaborate with your team.
 
-## Next steps
+<Steps>
+  <Step title="Navigate to Projects">
+    Click **📁 Mis Proyectos** in the left sidebar to access the projects view.
+  </Step>
 
-Now that you have your docs running, explore these key features:
+  <Step title="Create a New Project">
+    Click the create button and fill in the project details:
+
+    - **Name**: A descriptive title for your project
+    - **Description**: Optional details about the project's purpose
+
+    ```javascript
+    // Projects are created in Firestore
+    await addDoc(collection(db, "proyectos"), {
+      userId: user.uid,
+      ownerEmail: user.email,
+      nombre: "My First Project",
+      descripcion: "A collaborative workspace",
+      fechaCreacion: new Date(),
+      status: 'active',
+      enPapelera: false,
+      accesos: [user.email],
+      colaboradores: []
+    });
+    ```
+  </Step>
+
+  <Step title="Invite Collaborators (Optional)">
+    Share your project by adding collaborators:
+
+    - Enter their email address
+    - Choose their role: **editor** (can edit) or **visor** (read-only)
+    - Click invite
+
+    <Note>
+      Collaborators will see the project appear in their dashboard automatically.
+    </Note>
+  </Step>
+</Steps>
+
+## Create Your First Note
+
+Notes are the core of NoteMV. They support rich text editing, syntax highlighting, and real-time collaboration.
+
+<Steps>
+  <Step title="Open the Dashboard">
+    From the main dashboard, click the **+ Nueva Entrada** button to create a note.
+  </Step>
+
+  <Step title="Add Content">
+    In the note editor:
+
+    1. **Title**: Enter a descriptive title
+    2. **Tag**: Select a category (React, JS, Python, Git, etc.)
+    3. **Content**: Write your note using the rich text editor
+
+    The editor supports:
+    - Bold, italic, underline, strikethrough
+    - Headers (H1, H2)
+    - Ordered and bulleted lists
+    - Code blocks with syntax highlighting
+    - Links
+
+    ```javascript
+    // Notes are saved to Firestore
+    const docRef = await addDoc(collection(db, "notas"), {
+      userId: user.uid,
+      titulo: "My First Note",
+      contenido: "<p>Hello, <strong>NoteMV</strong>!</p>",
+      etiqueta: "General",
+      proyectoId: null,
+      carpetaId: null,
+      cover: "",
+      fecha: new Date(),
+      enPapelera: false
+    });
+    ```
+  </Step>
+
+  <Step title="Save Your Note">
+    Click **GUARDAR CAMBIOS 💾** to save your note. It will appear in your dashboard immediately.
+
+    <Note>
+      All changes are autosaved to Firebase in real-time.
+    </Note>
+  </Step>
+</Steps>
+
+## Organize Notes in Projects
+
+Link notes to projects for better organization:
+
+1. Create or open a note
+2. Assign it to a project from the editor
+3. Access all project notes from the project view
+
+```javascript
+// Associate a note with a project
+await addDoc(collection(db, "notas"), {
+  userId: user.uid,
+  titulo: "Project Meeting Notes",
+  contenido: "<p>Discussion points...</p>",
+  proyectoId: "abc123",  // Link to project
+  carpetaId: null,
+  etiqueta: "General",
+  fecha: new Date()
+});
+```
+
+## Real-Time Collaboration
+
+NoteMV supports real-time presence indicators when multiple users work on the same note.
+
+<CodeGroup>
+```javascript Presence Registration
+// Your presence is registered automatically
+import { registrarPresencia } from './servicios/notas';
+
+await registrarPresencia(notaId, user);
+// Other users see you're online
+```
+
+```javascript Live Updates
+// Subscribe to note changes
+import { suscribirNota } from './servicios/notas';
+
+const unsubscribe = suscribirNota(notaId, (updatedNote) => {
+  console.log('Note updated:', updatedNote);
+  // UI updates automatically
+});
+```
+</CodeGroup>
+
+## Next Steps
+
+Now that you've created your first project and note, explore more features:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Installation" icon="download" href="/installation">
+    Set up your own NoteMV development environment
+  </Card>
+  <Card title="Projects" icon="folder" href="/features/projects">
+    Learn advanced project management features
+  </Card>
+  <Card title="Collaboration" icon="users" href="/features/collaboration">
+    Master team collaboration workflows
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/notas">
+    Explore the complete API documentation
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+<Warning>
+  NoteMV is currently in **beta development**. Avoid storing critical personal data as the database may be reset during updates.
+</Warning>

@@ -1,0 +1,392 @@
+---
+title: Managing Projects
+description: Create projects, organize with folders, and manage project settings
+---
+
+## Overview
+
+Projects in NoteMV provide a powerful way to organize related notes, tasks, and documents. Each project has its own workspace with folder structure, task board, and documentation resources.
+
+## Creating a Project
+
+<Steps>
+  <Step title="Navigate to Projects">
+    Click "Proyectos" in the sidebar to open the projects view.
+  </Step>
+  
+  <Step title="Click 'New Project'">
+    Click the "+ PROYECTO" button in the top-right corner.
+    
+    A modal will appear asking for project details.
+  </Step>
+  
+  <Step title="Name Your Project">
+    Enter a descriptive name for your project (required).
+    
+    Examples:
+    - "Mobile App Redesign"
+    - "Q1 Marketing Campaign"
+    - "Personal Learning Goals"
+  </Step>
+  
+  <Step title="Create Project">
+    Click "Crear" (Create) to finalize the project.
+    
+    Your new project appears in the "Mis Proyectos" (My Projects) section.
+  </Step>
+</Steps>
+
+<Tip>
+When you create a project, you're automatically set as the **Owner** with full permissions. You can later invite collaborators with different roles.
+</Tip>
+
+## Project Structure
+
+Each project contains three main tabs:
+
+<Tabs>
+  <Tab title="Archivos (Files)">
+    **Files & Folders View**
+    
+    Organize your notes in a hierarchical folder structure:
+    - Create unlimited folders and subfolders
+    - Store notes inside folders for better organization
+    - Navigate breadcrumb-style through your folder hierarchy
+    
+    This is your main workspace for document management.
+  </Tab>
+  
+  <Tab title="Tareas (Tasks)">
+    **Kanban Task Board**
+    
+    Visual task management with three columns:
+    - **📋 Por Hacer** (To Do): New tasks
+    - **⚙️ En Proceso** (In Progress): Active work
+    - **✅ Terminado** (Done): Completed tasks
+    
+    Drag and drop tasks between columns to update status.
+  </Tab>
+  
+  <Tab title="Documentos (Documents)">
+    **External Resources**
+    
+    Attach external documents and links:
+    - Google Drive files
+    - Dropbox links
+    - PDFs and images
+    - Any online resource
+    
+    Built-in document viewer for quick access.
+  </Tab>
+</Tabs>
+
+## Working with Folders
+
+### Creating Folders
+
+<Steps>
+  <Step title="Navigate to Project">
+    Open a project from your projects list.
+    
+    Ensure you're on the "Archivos" (Files) tab.
+  </Step>
+  
+  <Step title="Click 'Nueva Carpeta'">
+    Click the "📁+ Nueva Carpeta" button in the toolbar.
+  </Step>
+  
+  <Step title="Name the Folder">
+    Enter a folder name (e.g., "Design Specs", "Meeting Notes").
+  </Step>
+  
+  <Step title="Create">
+    Click "Crear" to add the folder.
+    
+    The folder appears in your current location.
+  </Step>
+</Steps>
+
+### Nested Folders
+
+Create subfolders for deeper organization:
+
+1. **Navigate into a folder** by clicking it
+2. **Create a new folder** using the same "Nueva Carpeta" button
+3. The new folder is created **inside** the current folder
+4. Use the breadcrumb navigation at the top to move back up
+
+```plaintext
+Project Root
+├── Design
+│   ├── Mockups
+│   └── Assets
+├── Development
+│   ├── Frontend
+│   └── Backend
+└── Documentation
+```
+
+## Managing Project Content
+
+### Adding Notes to Projects
+
+<Steps>
+  <Step title="Open Project">
+    Navigate to the project where you want to add a note.
+  </Step>
+  
+  <Step title="Navigate to Folder (Optional)">
+    If you want the note in a specific folder, open that folder first.
+  </Step>
+  
+  <Step title="Click 'Nuevo Doc'">
+    Click the "📝+ Nuevo Doc" button in the toolbar.
+  </Step>
+  
+  <Step title="Create Note">
+    The full editor opens with a blank note.
+    
+    The note is automatically linked to:
+    - Current project (`proyectoId`)
+    - Current folder if inside one (`carpetaId`)
+  </Step>
+</Steps>
+
+### Moving Items
+
+Reorganize notes between projects and folders:
+
+<Steps>
+  <Step title="Right-Click Item">
+    Right-click (or click the ••• menu) on any note.
+  </Step>
+  
+  <Step title="Select 'Mover a...'">
+    Choose "📦 Mover a..." (Move to) from the context menu.
+  </Step>
+  
+  <Step title="Choose Destination">
+    A modal appears with:
+    - **Project dropdown**: Select target project
+    - **Folder dropdown**: Select target folder (or "Raíz" for root)
+  </Step>
+  
+  <Step title="Execute Move">
+    Click "Mover" to relocate the note.
+    
+    The note immediately appears in its new location.
+  </Step>
+</Steps>
+
+<Warning>
+Only **Editors** and **Owners** can move items. Viewers have read-only access.
+</Warning>
+
+## Project Settings
+
+### Editing Project Information
+
+<Steps>
+  <Step title="Open Project">
+    Navigate to the project you want to edit.
+  </Step>
+  
+  <Step title="Click 'Editar Info'">
+    Click the "Editar Info" link in the top-right corner of the project header.
+    
+    Alternatively, right-click the project card and select "✏ Editar Información".
+  </Step>
+  
+  <Step title="Update Details">
+    The project settings modal allows you to edit:
+    
+    - **Nombre** (Name): Project title
+    - **Descripción** (Description): Brief summary
+    - **URL Repositorio** (Repository URL): Link to GitHub, GitLab, etc.
+  </Step>
+  
+  <Step title="Save Changes">
+    Click "Guardar" to save your changes.
+    
+    Updates are immediately visible to all collaborators.
+  </Step>
+</Steps>
+
+### Project Metadata
+
+Each project stores:
+
+```javascript
+{
+  nombre: "Project Name",
+  descripcion: "Project description",
+  repoUrl: "https://github.com/user/repo",
+  userId: "owner-uid",
+  ownerEmail: "owner@email.com",
+  status: "active",
+  fechaCreacion: Timestamp,
+  accesos: ["email1", "email2"], // Quick access list
+  colaboradores: [
+    { email: "user@email.com", rol: "editor", fecha: Timestamp }
+  ]
+}
+```
+
+## Project Dashboard Metrics
+
+The project header displays real-time task statistics:
+
+<CardGroup cols={3}>
+  <Card title="Por Hacer" icon="clipboard-list" color="#ef4444">
+    **To Do Tasks**
+    
+    Number of tasks in the "todo" column.
+    
+    Progress bar shows percentage of total.
+  </Card>
+  
+  <Card title="En Proceso" icon="gear" color="#eab308">
+    **In Progress Tasks**
+    
+    Number of tasks being actively worked on.
+    
+    Indicates team workload.
+  </Card>
+  
+  <Card title="Terminado" icon="check" color="#22c55e">
+    **Completed Tasks**
+    
+    Number of finished tasks.
+    
+    Track project completion progress.
+  </Card>
+</CardGroup>
+
+These metrics update automatically as you move tasks on the Kanban board.
+
+## Context Menus
+
+Right-click (or click •••) on items for quick actions:
+
+### On Project Cards
+
+- **✏ Editar Información**: Edit project settings
+- **🗑️ Papelera**: Move project to trash (Owner only)
+
+### On Files/Folders
+
+- **📦 Mover a...**: Move to different project/folder (notes only)
+- **🗑️ Papelera**: Move to trash
+
+<Note>
+Deleted items go to the **Papelera** (Trash) where they can be restored or permanently deleted.
+</Note>
+
+## Permission-Based Actions
+
+Actions available depend on your role:
+
+| Action | Viewer | Editor | Owner |
+|--------|--------|--------|-------|
+| View notes and tasks | ✅ | ✅ | ✅ |
+| Create notes/folders | ❌ | ✅ | ✅ |
+| Edit content | ❌ | ✅ | ✅ |
+| Move items | ❌ | ✅ | ✅ |
+| Delete items | ❌ | ✅ | ✅ |
+| Edit project settings | ❌ | ✅ | ✅ |
+| Invite collaborators | ❌ | ❌ | ✅ |
+| Manage team | ❌ | ❌ | ✅ |
+| Delete project | ❌ | ❌ | ✅ |
+
+## Real-Time Collaboration
+
+Projects support real-time collaboration:
+
+- **Live Updates**: Changes sync instantly across all users
+- **Presence Indicators**: See who's viewing notes
+- **Project Chat**: Built-in chat for team communication
+- **Automatic Conflict Resolution**: Last edit wins (timestamps tracked)
+
+### Project Subscriptions
+
+NoteMV uses Firestore `onSnapshot` to listen for changes:
+
+- When a collaborator updates project settings, you see it immediately
+- If you're removed from a project, you're notified and redirected
+- Task board updates appear in real-time for all users
+
+## Organizing Multiple Projects
+
+### My Projects vs. Shared Projects
+
+The projects view separates:
+
+<Tabs>
+  <Tab title="Mis Proyectos">
+    **My Projects**
+    
+    Projects where you're the **Owner**:
+    - Full control over all aspects
+    - Can invite collaborators
+    - Can delete the project
+    - Displayed with 🚀 icon
+  </Tab>
+  
+  <Tab title="Compartidos Conmigo">
+    **Shared With Me**
+    
+    Projects where you're a **Collaborator**:
+    - Role badge shows your permission level
+    - Owner's email displayed
+    - Limited to viewing or editing (no team management)
+    - Displayed with 👥 icon
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Descriptive Names">
+    Give projects and folders clear, descriptive names:
+    
+    ✅ Good: "Website Redesign Q2 2024"
+    
+    ❌ Bad: "Project 1"
+  </Accordion>
+  
+  <Accordion title="Organize by Workflow">
+    Structure folders to match your team's workflow:
+    
+    ```plaintext
+    Marketing Campaign
+    ├── Research
+    ├── Planning
+    ├── Execution
+    └── Results
+    ```
+  </Accordion>
+  
+  <Accordion title="Keep Descriptions Updated">
+    Update project descriptions as scope changes to keep team aligned.
+  </Accordion>
+  
+  <Accordion title="Use Repository URLs">
+    Link to your GitHub/GitLab repos for easy access to code.
+  </Accordion>
+  
+  <Accordion title="Regular Cleanup">
+    Move completed projects to trash to keep your workspace clean.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Sharing & Collaboration" icon="users" href="/guide/sharing-collaboration">
+    Learn how to invite team members and manage permissions
+  </Card>
+  
+  <Card title="Documents & Resources" icon="file" href="/guide/documents-resources">
+    Discover how to attach external documents to projects
+  </Card>
+</CardGroup>

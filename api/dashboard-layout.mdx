@@ -1,0 +1,156 @@
+---
+title: "DashboardLayout"
+description: "Main application layout component with navigation and view routing"
+---
+
+## Overview
+
+The `DashboardLayout` component serves as the main application container for NoteMV. It provides the sidebar navigation, view routing, and state management for the entire dashboard experience.
+
+## Usage
+
+```jsx
+import DashboardLayout from './componentes/DashboardLayout';
+
+function App() {
+  return (
+    <DashboardLayout 
+      user={currentUser}
+      onLogout={handleLogout}
+    />
+  );
+}
+```
+
+## Props
+
+<ParamField path="user" type="object" required>
+  User object from Firebase authentication containing:
+  - `uid`: User ID
+  - `displayName`: User's display name
+  - `photoURL`: User's profile photo URL
+  - `email`: User's email address
+</ParamField>
+
+<ParamField path="onLogout" type="function" required>
+  Callback function invoked when the user clicks the disconnect button.
+  
+  **Signature**: `() => void`
+</ParamField>
+
+## State Management
+
+The component manages several key states:
+
+- **currentView**: Controls which view is displayed (`'dashboard'`, `'editor'`, `'projects'`, `'snippets'`, `'trash'`)
+- **notaActiva**: Stores the currently active note being edited
+
+## Views
+
+DashboardLayout routes to the following views:
+
+| View | Component | Trigger |
+|------|-----------|----------|
+| Dashboard | `DashboardHome` | Default view |
+| Editor | `EditorView` | Note creation/editing |
+| Projects | `ProjectsView` | Projects navigation |
+| Snippets | `SnippetsView` | Snippets view |
+| Trash | `TrashView` | Trash management |
+
+## Key Methods
+
+### handleAbrirEditor
+
+Opens the editor view with an optional note.
+
+```jsx
+const handleAbrirEditor = (nota = null) => {
+  setNotaActiva(nota); 
+  setCurrentView('editor'); 
+};
+```
+
+**Parameters**:
+- `nota` (optional): Note object to edit. If null, creates a new note.
+
+### handleGuardarDesdeEditor
+
+Saves or updates a note from the editor.
+
+```jsx
+const handleGuardarDesdeEditor = async (id, titulo, contenido, etiqueta, cover) => {
+  if (id) {
+    await actualizarNota(id, titulo, contenido, etiqueta, cover);
+  } else {
+    const newId = await crearNota(user.uid, titulo, contenido, etiqueta, null, null, cover);
+    if (newId) {
+      setNotaActiva(prev => ({
+        ...prev,
+        id: newId,
+        titulo, contenido, etiqueta, cover
+      }));
+    }
+  }
+};
+```
+
+**Parameters**:
+- `id`: Note ID (null for new notes)
+- `titulo`: Note title
+- `contenido`: Note content (HTML)
+- `etiqueta`: Note category/tag
+- `cover`: Cover image URL
+
+## Layout Structure
+
+### Sidebar
+
+The sidebar appears on all views except the editor and includes:
+- App branding (NOTEMV_OS)
+- Navigation menu
+- User profile section
+- Logout button
+
+### Main Area
+
+The main content area dynamically renders the active view component.
+
+## Example: Parent Component
+
+```jsx
+// From App.jsx
+import { useState } from 'react';
+import { auth } from './firebase';
+import DashboardLayout from './componentes/DashboardLayout';
+
+function App() {
+  const [user, setUser] = useState(null);
+
+  const handleLogout = async () => {
+    await auth.signOut();
+    setUser(null);
+  };
+
+  return (
+    <DashboardLayout 
+      user={user}
+      onLogout={handleLogout}
+    />
+  );
+}
+```
+
+## Styling
+
+- Uses dark theme with green accent colors (`bg-[#050505]`, `text-green-400`)
+- Sidebar width: `w-64`
+- Animated grid background on non-editor views
+- Responsive layout with flex containers
+
+<Note>
+The sidebar is automatically hidden when the editor view is active to provide a distraction-free writing experience.
+</Note>
+
+<Note>
+The component automatically updates `notaActiva` with the new ID after creating a note, preventing duplicate saves.
+</Note>

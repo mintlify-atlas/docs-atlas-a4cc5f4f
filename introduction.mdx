@@ -1,0 +1,258 @@
+---
+title: Welcome to NoteMV
+description: A powerful collaborative note-taking and project management platform with real-time features, Kanban boards, and rich text editing.
+mode: custom
+---
+
+<div className="relative w-full overflow-hidden bg-gradient-to-br from-[#3B3B37] via-[#2e2e2e] to-[#19160b] dark:from-[#1a1d27] dark:via-[#0f1117] dark:to-[#000000]">
+  <div className="absolute inset-0 bg-[linear-gradient(rgba(241,210,98,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(241,210,98,0.03)_1px,transparent_1px)] bg-[size:50px_50px] opacity-30"></div>
+  
+  <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-24">
+    <div className="grid lg:grid-cols-12 gap-12 items-center">
+      <div className="lg:col-span-7">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+          Organize your ideas,<br />
+          <span className="text-[#f1d262]">collaborate</span> with your team
+        </h1>
+        
+        <p className="text-lg sm:text-xl text-gray-300 dark:text-gray-400 mb-8 max-w-2xl leading-relaxed">
+          NoteMV is a collaborative workspace that combines powerful note-taking, project management, and real-time collaboration. Built for teams who need to organize, track, and execute their work efficiently.
+        </p>
+        
+        <div className="flex flex-wrap gap-4">
+          <a 
+            href="/quickstart" 
+            className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#f0d85c] hover:bg-[#f1d262] text-[#2e2e2e] font-semibold transition-all hover:scale-105 shadow-lg"
+          >
+            Get started
+            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+          
+          <a 
+            href="/features/dashboard" 
+            className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-transparent border-2 border-[#f0d85c] text-[#f0d85c] hover:bg-[#f0d85c]/10 font-semibold transition-all"
+          >
+            Explore features
+          </a>
+        </div>
+      </div>
+      
+      <div className="lg:col-span-5 hidden lg:block">
+        <div className="relative">
+          <div className="absolute inset-0 bg-[#f1d262] opacity-20 blur-3xl rounded-full"></div>
+          <div className="relative bg-[#1a1d27] dark:bg-[#0f1117] border border-[#f1d262]/30 rounded-2xl p-8 shadow-2xl">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-3 h-3 bg-[#f1d262] rounded-full animate-pulse"></div>
+                <span className="text-[#f1d262] font-mono font-bold tracking-wider">NOTEMV_OS</span>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="h-3 bg-[#f1d262]/20 rounded w-3/4"></div>
+                <div className="h-3 bg-[#f1d262]/20 rounded w-full"></div>
+                <div className="h-3 bg-[#f1d262]/20 rounded w-2/3"></div>
+              </div>
+              
+              <div className="mt-6 grid grid-cols-3 gap-3">
+                <div className="h-20 bg-[#f1d262]/10 border border-[#f1d262]/30 rounded-lg"></div>
+                <div className="h-20 bg-[#f1d262]/10 border border-[#f1d262]/30 rounded-lg"></div>
+                <div className="h-20 bg-[#f1d262]/10 border border-[#f1d262]/30 rounded-lg"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    Quick start
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Get started with NoteMV in just a few steps
+  </p>
+  
+  <Steps>
+    <Step title="Create your account">
+      Sign in with your Google account to get instant access to NoteMV. No complex setup required — just authenticate and you're ready to go.
+      
+      ```javascript
+      // Authentication is handled via Firebase
+      import { auth, googleProvider, signInWithPopup } from './firebase';
+      
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      ```
+    </Step>
+    
+    <Step title="Create your first project">
+      Once you're logged in, navigate to the Projects view and create your first project. Projects help you organize related notes, tasks, and documents in one place.
+      
+      <Note>
+        Projects support role-based permissions, allowing you to control who can view or edit content.
+      </Note>
+    </Step>
+    
+    <Step title="Start collaborating">
+      Invite team members to your project by email. Choose their role (viewer or editor) and share the project link. All changes sync in real-time across all collaborators.
+      
+      <Tip>
+        Use the built-in chat feature to discuss project details without leaving the platform.
+      </Tip>
+    </Step>
+    
+    <Step title="Organize with notes and tasks">
+      Create notes with the rich text editor, organize them in folders, and track progress with Kanban boards. Everything stays synchronized automatically thanks to Firebase real-time updates.
+    </Step>
+  </Steps>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    Core features
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Everything you need to manage projects and collaborate with your team
+  </p>
+  
+  <CardGroup cols={3}>
+    <Card title="Rich text editor" icon="pen-to-square" href="/features/editor">
+      Powerful editor built on Quill with support for formatting, code blocks, images, and more
+    </Card>
+    
+    <Card title="Project management" icon="folder-tree" href="/features/projects">
+      Organize notes in projects and folders with role-based permissions for team collaboration
+    </Card>
+    
+    <Card title="Kanban boards" icon="table-columns" href="/features/kanban">
+      Visual task management with drag-and-drop support and real-time updates
+    </Card>
+    
+    <Card title="Real-time collaboration" icon="users" href="/features/collaboration">
+      Multiple users can work simultaneously with instant synchronization powered by Firebase
+    </Card>
+    
+    <Card title="Document attachments" icon="paperclip" href="/guide/documents-resources">
+      Attach external documents from Google Drive, Dropbox, or any public URL
+    </Card>
+    
+    <Card title="Project chat" icon="comments" href="/api/project-chat">
+      Built-in chat for each project to discuss ideas and coordinate with your team
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+    Explore by use case
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    See how NoteMV adapts to different workflows
+  </p>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <a href="/guide/creating-notes" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] hover:border-[#f1d262] dark:hover:border-[#f1d262] overflow-hidden no-underline transition-all bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-12 h-12 rounded-xl bg-[#f5d86e] dark:bg-[#f1d262]/20 flex items-center justify-center text-2xl">
+            📝
+          </div>
+          <svg className="w-5 h-5 text-gray-400 group-hover:text-[#f1d262] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+          Personal knowledge base
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Capture ideas, organize research, and build your personal wiki with rich formatting and tagging
+        </p>
+      </div>
+    </a>
+    
+    <a href="/guide/managing-projects" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] hover:border-[#f1d262] dark:hover:border-[#f1d262] overflow-hidden no-underline transition-all bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-12 h-12 rounded-xl bg-[#f5d86e] dark:bg-[#f1d262]/20 flex items-center justify-center text-2xl">
+            🚀
+          </div>
+          <svg className="w-5 h-5 text-gray-400 group-hover:text-[#f1d262] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+          Team project management
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Coordinate team projects with shared workspaces, task tracking, and real-time collaboration
+        </p>
+      </div>
+    </a>
+    
+    <a href="/features/kanban" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] hover:border-[#f1d262] dark:hover:border-[#f1d262] overflow-hidden no-underline transition-all bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-12 h-12 rounded-xl bg-[#f5d86e] dark:bg-[#f1d262]/20 flex items-center justify-center text-2xl">
+            📊
+          </div>
+          <svg className="w-5 h-5 text-gray-400 group-hover:text-[#f1d262] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+          Agile workflow
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Manage sprints and track tasks visually with customizable Kanban boards and task metrics
+        </p>
+      </div>
+    </a>
+    
+    <a href="/guide/documents-resources" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] hover:border-[#f1d262] dark:hover:border-[#f1d262] overflow-hidden no-underline transition-all bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-12 h-12 rounded-xl bg-[#f5d86e] dark:bg-[#f1d262]/20 flex items-center justify-center text-2xl">
+            📂
+          </div>
+          <svg className="w-5 h-5 text-gray-400 group-hover:text-[#f1d262] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+          Document hub
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Centralize project documentation with links to external files and embedded document previews
+        </p>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#f5d86e] to-[#f0d85c] dark:from-[#7c6c34] dark:to-[#19160b] p-8 md:p-12 border-2 border-transparent">
+    <div className="relative z-10 max-w-3xl">
+      <h2 className="text-2xl sm:text-3xl font-bold text-[#2e2e2e] dark:text-white mb-4">
+        Ready to get started?
+      </h2>
+      <p className="text-base text-[#2e2e2e] dark:text-gray-300 mb-6">
+        Set up your NoteMV workspace in minutes and start organizing your projects with your team today.
+      </p>
+      <a 
+        href="/quickstart" 
+        className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#2e2e2e] dark:bg-white text-white dark:text-[#2e2e2e] font-semibold hover:scale-105 transition-transform shadow-lg"
+      >
+        Start building
+        <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+    </div>
+    
+    <div className="absolute top-0 right-0 w-64 h-64 bg-white dark:bg-black opacity-10 rounded-full blur-3xl"></div>
+  </div>
+</div>

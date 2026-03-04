@@ -1,0 +1,191 @@
+---
+title: 'Chat Service'
+description: 'API reference for real-time project chat and messaging'
+---
+
+The Chat service provides real-time messaging functionality for project collaboration.
+
+## enviarMensaje
+
+Sends a message to a project's chat channel.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ParamField path="user" type="object" required>
+  User object containing `uid` and `displayName` properties
+</ParamField>
+
+<ParamField path="texto" type="string" required>
+  The message text content (trimmed automatically)
+</ParamField>
+
+<ResponseField name="return" type="void">
+  No return value (async operation)
+</ResponseField>
+
+```javascript
+import { enviarMensaje } from './servicios/chat';
+import { auth } from './firebase';
+
+const user = auth.currentUser;
+await enviarMensaje(
+  "proyecto-123",
+  user,
+  "¿Alguien puede revisar el PR?"
+);
+```
+
+<Note>
+  Messages are timestamped using `serverTimestamp()` for consistent ordering across clients. Empty messages (whitespace-only) are ignored.
+</Note>
+
+---
+
+## suscribirChat
+
+Subscribes to real-time chat messages for a project.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ParamField path="callback" type="function" required>
+  Function called when new messages arrive. Receives an array of message objects ordered by timestamp (ascending).
+</ParamField>
+
+<ResponseField name="return" type="function">
+  Returns an unsubscribe function to stop listening to chat updates
+</ResponseField>
+
+```javascript
+import { suscribirChat } from './servicios/chat';
+import { useState, useEffect } from 'react';
+
+function ChatComponent({ proyectoId }) {
+  const [mensajes, setMensajes] = useState([]);
+
+  useEffect(() => {
+    const unsubscribe = suscribirChat(proyectoId, (nuevosMensajes) => {
+      setMensajes(nuevosMensajes);
+    });
+
+    return () => unsubscribe(); // Cleanup on unmount
+  }, [proyectoId]);
+
+  return (
+    <div>
+      {mensajes.map(msg => (
+        <div key={msg.id}>
+          <strong>{msg.usuario}:</strong> {msg.texto}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### Message Object Structure
+
+Each message object contains:
+
+<ResponseField name="id" type="string">
+  Unique identifier for the message
+</ResponseField>
+
+<ResponseField name="uid" type="string">
+  User ID of the message sender
+</ResponseField>
+
+<ResponseField name="usuario" type="string">
+  Display name of the sender (or "Anonimo" if not available)
+</ResponseField>
+
+<ResponseField name="texto" type="string">
+  The message content
+</ResponseField>
+
+<ResponseField name="timestamp" type="Timestamp">
+  Firebase server timestamp when the message was sent
+</ResponseField>
+
+<ResponseField name="tipo" type="string">
+  Message type (currently always `'msg'`, reserved for future use like alerts or logs)
+</ResponseField>
+
+```javascript
+// Example message object
+{
+  id: "msg-abc123",
+  uid: "user-xyz",
+  usuario: "Juan Pérez",
+  texto: "Hola equipo!",
+  timestamp: Timestamp,
+  tipo: "msg"
+}
+```
+
+---
+
+## Usage Example: Complete Chat Component
+
+```javascript
+import { useState, useEffect, useRef } from 'react';
+import { enviarMensaje, suscribirChat } from './servicios/chat';
+import { auth } from './firebase';
+
+function ProyectoChat({ proyectoId }) {
+  const [mensajes, setMensajes] = useState([]);
+  const [inputText, setInputText] = useState('');
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    // Suscribirse al chat
+    const unsubscribe = suscribirChat(proyectoId, (nuevosMensajes) => {
+      setMensajes(nuevosMensajes);
+      // Auto-scroll al último mensaje
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    return () => unsubscribe();
+  }, [proyectoId]);
+
+  const handleEnviar = async (e) => {
+    e.preventDefault();
+    if (!inputText.trim()) return;
+
+    await enviarMensaje(proyectoId, auth.currentUser, inputText);
+    setInputText('');
+  };
+
+  return (
+    <div className="chat-container">
+      <div className="mensajes">
+        {mensajes.map(msg => (
+          <div key={msg.id} className="mensaje">
+            <strong>{msg.usuario}:</strong>
+            <span>{msg.texto}</span>
+            <small>{msg.timestamp?.toDate().toLocaleTimeString()}</small>
+          </div>
+        ))}
+        <div ref={chatEndRef} />
+      </div>
+
+      <form onSubmit={handleEnviar}>
+        <input
+          type="text"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          placeholder="Escribe un mensaje..."
+        />
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+  );
+}
+```
+
+<Note>
+  The chat is stored as a subcollection under each project: `proyectos/{proyectoId}/mensajes`. This keeps messages organized and enables efficient queries.
+</Note>

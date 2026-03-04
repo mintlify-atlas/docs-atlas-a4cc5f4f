@@ -1,0 +1,583 @@
+---
+title: 'Kanban Board'
+description: 'Visual task management with drag-and-drop, team assignments, and real-time updates'
+icon: 'table-columns'
+---
+
+## Overview
+
+The Kanban board provides a visual way to manage project tasks using a three-column workflow. Built with drag-and-drop functionality and real-time sync, it keeps teams aligned on priorities and progress.
+
+<CardGroup cols={2}>
+  <Card title="Drag & Drop" icon="hand">
+    Move tasks between columns with smooth animations
+  </Card>
+  <Card title="Team Assignments" icon="user-tag">
+    Assign tasks to specific project members
+  </Card>
+  <Card title="Priority Levels" icon="flag">
+    Mark tasks as high, medium, or low priority
+  </Card>
+  <Card title="Due Dates" icon="calendar">
+    Set deadlines to keep work on track
+  </Card>
+</CardGroup>
+
+## Accessing the Kanban
+
+The Kanban board is available within projects:
+
+<Steps>
+  <Step title="Open a Project">
+    Navigate to **Mis Proyectos** and select any project
+  </Step>
+  
+  <Step title="Switch to Tareas Tab">
+    Click **"Tareas"** in the project navigation tabs
+  </Step>
+  
+  <Step title="Start Managing">
+    Board loads with all project tasks organized by state
+  </Step>
+</Steps>
+
+<Note>
+  You need **Editor** or **Owner** permissions to create and move tasks. Viewers can only see the board.
+</Note>
+
+## Board Structure
+
+### Three-Column Workflow
+
+Tasks flow through three states:
+
+<Tabs>
+  <Tab title="POR HACER (Todo)">
+    **Red-bordered column** for pending tasks
+    
+    - New tasks start here by default
+    - Backlog of work to be started
+    - Count badge shows total pending
+    - Drag tasks to "EN PROCESO" to begin work
+  </Tab>
+  
+  <Tab title="EN PROCESO (Doing)">
+    **Yellow-bordered column** for active work
+    
+    - Tasks currently being worked on
+    - Limit work-in-progress for focus
+    - Indicates active sprint items
+    - Move to "TERMINADO" when complete
+  </Tab>
+  
+  <Tab title="TERMINADO (Done)">
+    **Green-bordered column** for completed tasks
+    
+    - Finished work archive
+    - Displays team productivity
+    - Contributes to project metrics
+    - Can be moved back if reopened
+  </Tab>
+</Tabs>
+
+### Column Layout
+
+```
+┌──────────────┬──────────────┬──────────────┐
+│  POR HACER   │  EN PROCESO  │  TERMINADO   │
+│      5       │      2       │      8       │
+├──────────────┼──────────────┼──────────────┤
+│              │              │              │
+│  [Task Card] │  [Task Card] │  [Task Card] │
+│  [Task Card] │  [Task Card] │  [Task Card] │
+│  [Task Card] │              │  [Task Card] │
+│              │              │  [Task Card] │
+│              │              │  [Task Card] │
+└──────────────┴──────────────┴──────────────┘
+```
+
+Each column:
+- Shows task count in header badge
+- Scrolls independently if tasks overflow
+- Highlights when dragging tasks over it
+- Displays tasks in creation order
+
+## Task Cards
+
+### Card Anatomy
+
+Each task card displays key information:
+
+```
+┌────────────────────────────────┐
+│ [ALTA]            📅 12/25/24 │
+│                                │
+│ Fix login bug                  │
+│ Users can't authenticate...    │
+│                                │
+│ [JD] john_doe                  │
+└────────────────────────────────┘
+```
+
+**Card Elements:**
+
+<Accordion title="Priority Badge">
+  Top-left corner indicator:
+  - **🔴 ALTA** - Red badge for urgent tasks
+  - **🟡 MEDIA** - Yellow badge for normal priority
+  - **🔵 BAJA** - Blue badge for low priority
+  
+  Colored left border matches priority level.
+</Accordion>
+
+<Accordion title="Due Date">
+  Top-right corner (if set):
+  - 📅 Calendar icon
+  - MM/DD/YYYY format
+  - Optional field, can be empty
+</Accordion>
+
+<Accordion title="Title">
+  Bold heading in center:
+  - Task summary or name
+  - Should be concise and clear
+  - Visible at a glance
+</Accordion>
+
+<Accordion title="Description">
+  Gray text below title:
+  - Additional details
+  - Truncated after 2 lines
+  - Optional supporting information
+</Accordion>
+
+<Accordion title="Assignment">
+  Bottom section:
+  - Avatar with user's initial
+  - Shortened email (before @)
+  - "Sin asignar" if no assignee
+  - Color-coded border
+</Accordion>
+
+### Card Interactions
+
+<CardGroup cols={2}>
+  <Card title="Click to Edit" icon="pen">
+    Click anywhere on card to open edit modal
+  </Card>
+  <Card title="Drag to Move" icon="hand">
+    Click and drag to change task state
+  </Card>
+  <Card title="Hover Effects" icon="eye">
+    Background brightens, edit icon appears
+  </Card>
+  <Card title="Visual Feedback" icon="sparkles">
+    Card rotates and scales while dragging
+  </Card>
+</CardGroup>
+
+## Creating Tasks
+
+### New Task Modal
+
+Click **"+ NUEVA TAREA"** to open the creation form:
+
+<Steps>
+  <Step title="Enter Title">
+    **Required field** - Brief task summary
+    
+    Example: "Fix login bug" or "Design new homepage"
+  </Step>
+  
+  <Step title="Set Priority">
+    Choose from dropdown:
+    - 🔴 Alta (High)
+    - 🟡 Media (Medium) - default
+    - 🔵 Baja (Low)
+  </Step>
+  
+  <Step title="Select Due Date">
+    **Optional** - Pick a deadline using date picker
+    
+    Helps track time-sensitive work
+  </Step>
+  
+  <Step title="Assign to Team Member">
+    **Optional** - Choose from project collaborators
+    
+    Dropdown shows all team members plus "Sin asignar"
+  </Step>
+  
+  <Step title="Add Description">
+    **Optional** - Longer explanation or context
+    
+    Supports multi-line text
+  </Step>
+  
+  <Step title="Create Task">
+    Click **"Crear Tarea"** to save
+    
+    Task appears in "POR HACER" column immediately
+  </Step>
+</Steps>
+
+<Tip>
+  Tasks are created with `estado: "todo"` by default. Move them to other columns as work progresses.
+</Tip>
+
+## Editing Tasks
+
+### Edit Modal
+
+Click any task card to open the edit form:
+
+**Available Changes:**
+- Update title
+- Change priority level
+- Modify due date
+- Reassign to different member
+- Edit or add description
+
+**Form Layout:**
+
+```
+┌─────────────────────────────────────┐
+│ Editar Tarea                    [X] │
+├─────────────────────────────────────┤
+│ Título: [........................] │
+│                                     │
+│ Prioridad: [Media ▼] Fecha: [   ] │
+│                                     │
+│ Asignar a: [john@example.com ▼]   │
+│                                     │
+│ Descripción:                        │
+│ [................................] │
+│ [................................] │
+│                                     │
+│            [Cancelar] [Guardar]    │
+└─────────────────────────────────────┘
+```
+
+<Warning>
+  Changes save immediately to Firestore. There's no "undo" button, so double-check before saving.
+</Warning>
+
+## Drag and Drop
+
+### Moving Tasks
+
+Tasks can be moved between columns by dragging:
+
+<Steps>
+  <Step title="Click and Hold">
+    Click on any task card and hold
+  </Step>
+  
+  <Step title="Drag Over Column">
+    Move cursor to target column
+    
+    Column highlights to show drop zone
+  </Step>
+  
+  <Step title="Release to Drop">
+    Let go to place task in new column
+    
+    Task animates into position
+  </Step>
+  
+  <Step title="Auto-Save">
+    State updates in Firestore automatically
+    
+    All team members see the change instantly
+  </Step>
+</Steps>
+
+### Drag States
+
+<Tabs>
+  <Tab title="Idle">
+    **Normal appearance**
+    - Standard card styling
+    - Hover effects available
+    - Cursor shows grab icon
+  </Tab>
+  
+  <Tab title="Dragging">
+    **Enhanced visual feedback**
+    - Card scales to 105%
+    - Rotates 2 degrees
+    - Green ring appears (2px)
+    - Shadow expands
+    - z-index increases to 50
+  </Tab>
+  
+  <Tab title="Drop Zone">
+    **Target column highlights**
+    - Background lightens slightly
+    - Border glows (ring-1)
+    - Indicates valid drop target
+  </Tab>
+</Tabs>
+
+<Note>
+  Drag and drop uses `@hello-pangea/dnd` library (maintained fork of react-beautiful-dnd).
+</Note>
+
+## Team Assignment
+
+### Assigning Tasks
+
+Task assignment helps distribute work:
+
+**Assignment Dropdown Shows:**
+- Project owner (marked with "Dueño")
+- All collaborators with Editor role
+- All collaborators with Visor role
+- "-- Seleccionar miembro --" option
+
+**Assignment Display:**
+
+```
+[JD] john_doe        (Assigned)
+     Sin asignar     (Unassigned)
+```
+
+<CardGroup cols={2}>
+  <Card title="Assigned Tasks">
+    - Show user avatar/initial
+    - Display shortened email
+    - Blue color theme
+    - Full email on hover
+  </Card>
+  
+  <Card title="Unassigned Tasks">
+    - Gray italic text
+    - "Sin asignar" label
+    - Available for anyone to claim
+    - Can reassign in edit modal
+  </Card>
+</CardGroup>
+
+<Tip>
+  Filter your personal tasks by looking for your initial in the avatar circles.
+</Tip>
+
+## Priority System
+
+### Three Priority Levels
+
+<Tabs>
+  <Tab title="Alta (High)">
+    **Red styling** - Urgent tasks
+    
+    **Use for:**
+    - Critical bugs blocking users
+    - Hard deadlines approaching
+    - P0 incidents
+    - Executive requests
+    
+    Visual: Red badge, red left border
+  </Tab>
+  
+  <Tab title="Media (Medium)">
+    **Yellow styling** - Normal priority
+    
+    **Use for:**
+    - Regular sprint work
+    - Planned features
+    - Standard improvements
+    - Default priority level
+    
+    Visual: Yellow badge, yellow left border
+  </Tab>
+  
+  <Tab title="Baja (Low)">
+    **Blue styling** - Nice-to-have
+    
+    **Use for:**
+    - Future enhancements
+    - Nice-to-have features
+    - Technical debt
+    - Low-impact issues
+    
+    Visual: Blue badge, blue left border
+  </Tab>
+</Tabs>
+
+<Warning>
+  If everything is "Alta" priority, nothing is. Use priorities strategically to guide team focus.
+</Warning>
+
+## Real-Time Updates
+
+### Live Synchronization
+
+Kanban board updates in real-time:
+
+<CardGroup cols={2}>
+  <Card title="New Tasks" icon="plus">
+    Appear instantly when created by any team member
+  </Card>
+  <Card title="Task Moves" icon="arrows-left-right">
+    Column changes sync across all viewers
+  </Card>
+  <Card title="Edits" icon="pen">
+    Title, description, and metadata updates live
+  </Card>
+  <Card title="Count Badges" icon="hashtag">
+    Column counts update as tasks move
+  </Card>
+</CardGroup>
+
+**How It Works:**
+
+1. Component loads tasks via `obtenerTareas(proyectoId)`
+2. Local state (`tareas`) holds current task list
+3. Drag operations update state optimistically
+4. `moverTarea()` saves to Firestore
+5. All clients receive update via subscription
+
+<Note>
+  Real-time sync happens through Firestore. Changes typically propagate in under 200ms on good connections.
+</Note>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Workflow Management">
+    **Keep columns balanced:**
+    - Don't overload "EN PROCESO"
+    - Limit active work to 2-3 tasks per person
+    - Clear "TERMINADO" periodically
+    - Use "POR HACER" for backlog grooming
+    
+    **Move tasks deliberately:**
+    - Only move to "DOING" when starting
+    - Move to "DONE" only when complete
+    - Don't skip columns
+  </Accordion>
+  
+  <Accordion title="Task Creation">
+    **Write clear titles:**
+    - Start with action verb ("Fix", "Add", "Update")
+    - Be specific but concise
+    - Avoid vague titles like "Bug" or "Feature"
+    
+    **Use descriptions:**
+    - Add context for complex tasks
+    - Link to related documents
+    - Note dependencies or blockers
+    
+    **Set realistic dates:**
+    - Give buffer time
+    - Account for reviews and testing
+    - Update if timeline changes
+  </Accordion>
+  
+  <Accordion title="Team Coordination">
+    **Assignment strategy:**
+    - Assign during sprint planning
+    - Balance workload across team
+    - Leave some tasks unassigned for flexibility
+    - Reassign if priorities shift
+    
+    **Priority discipline:**
+    - Review priorities weekly
+    - Adjust as urgency changes
+    - Discuss priority conflicts in chat
+    - Get owner approval for high-priority tasks
+  </Accordion>
+  
+  <Accordion title="Board Hygiene">
+    **Regular maintenance:**
+    - Archive or delete old completed tasks
+    - Consolidate duplicate tasks
+    - Update stale descriptions
+    - Remove blocked tasks or mark clearly
+    
+    **Use consistently:**
+    - All team members check board daily
+    - Update task status as work progresses
+    - Move tasks promptly after completion
+    - Don't let tasks go stale in "DOING"
+  </Accordion>
+</AccordionGroup>
+
+## Metrics Integration
+
+The Kanban board feeds project metrics:
+
+### Dashboard Cards
+
+Project overview shows:
+
+```
+┌─────────────┬─────────────┬─────────────┐
+│ POR HACER   │ EN PROCESO  │ TERMINADO   │
+│    5/12     │    3/12     │    4/12     │
+│ ████░░░░    │ ██░░░░░░    │ ███░░░░░    │
+└─────────────┴─────────────┴─────────────┘
+```
+
+**Calculations:**
+- **Total Tasks** - Sum of all tasks across states
+- **State Counts** - Tasks in each column
+- **Progress Bars** - Percentage of total in each state
+
+<Tip>
+  Aim for a healthy distribution: ~40% Todo, ~30% Doing, ~30% Done for active projects.
+</Tip>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't Drag Tasks">
+    **Possible causes:**
+    - You don't have Editor permissions
+    - Task is locked (shouldn't happen)
+    - Browser drag functionality disabled
+    
+    **Solutions:**
+    - Check your role in project settings
+    - Try editing task via modal instead
+    - Refresh page to reset drag state
+  </Accordion>
+  
+  <Accordion title="Tasks Not Appearing">
+    **Check:**
+    - You're in the correct project
+    - Tasks were created in this project
+    - Firestore connection is active
+    
+    **Try:**
+    - Refresh the page
+    - Check browser console for errors
+    - Verify project ID in URL
+  </Accordion>
+  
+  <Accordion title="Assignments Not Working">
+    **Common issues:**
+    - Team member not added to project
+    - Collaborator list not loaded
+    - User removed from project
+    
+    **Fix:**
+    - Verify user in project team list
+    - Re-invite collaborator if needed
+    - Refresh and try assigning again
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={3}>
+  <Card title="Projects" icon="folder" href="/features/projects">
+    Kanban boards are project-specific
+  </Card>
+  <Card title="Collaboration" icon="users" href="/features/collaboration">
+    Real-time task updates for teams
+  </Card>
+  <Card title="Editor" icon="pen" href="/features/editor">
+    Link tasks to project documents
+  </Card>
+</CardGroup>

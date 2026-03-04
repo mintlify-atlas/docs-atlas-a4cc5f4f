@@ -1,0 +1,717 @@
+---
+title: 'Troubleshooting'
+description: 'Common issues and solutions for NoteMV'
+icon: 'wrench'
+---
+
+# Troubleshooting Guide
+
+This guide covers common issues you might encounter while setting up or using NoteMV, along with their solutions.
+
+## Authentication Issues
+
+<Accordion title="Google Sign-In Not Working">
+
+### Problem
+Clicking the "CONTINUAR" button doesn't open the Google sign-in popup, or the popup closes immediately without signing in.
+
+### Solutions
+
+1. **Check Firebase Configuration**
+   
+   Verify your Firebase config in `src/firebase.js:9`:
+   ```javascript
+   const firebaseConfig = {
+     apiKey: "YOUR_API_KEY",          // Should not be empty
+     authDomain: "your-app.firebaseapp.com",
+     projectId: "your-project-id",
+     // ... other fields
+   };
+   ```
+
+2. **Enable Google Authentication in Firebase Console**
+   
+   - Navigate to Firebase Console > Authentication > Sign-in method
+   - Ensure Google provider is **enabled**
+   - Add a support email if required
+
+3. **Check Authorized Domains**
+   
+   - Go to Firebase Console > Authentication > Settings > Authorized domains
+   - Add your domain (e.g., `localhost`, `your-app.com`)
+   - For development: ensure `localhost` is listed
+
+4. **Browser Popup Blockers**
+   
+   - Check if your browser is blocking popups
+   - Look for a blocked popup icon in the address bar
+   - Allow popups for your development domain
+
+5. **Clear Browser Cache**
+   
+   ```bash
+   # Hard refresh in browser
+   Ctrl+Shift+R (Windows/Linux)
+   Cmd+Shift+R (Mac)
+   ```
+
+</Accordion>
+
+<Accordion title="'auth/popup-closed-by-user' Error">
+
+### Problem
+Error appears when user closes the Google sign-in popup before completing authentication.
+
+### Solution
+
+This is expected behavior. The error is already handled in the code:
+
+```javascript src/App.jsx:14
+const handleLogin = async () => {
+  setLoading(true);
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    setUser(result.user);
+  } catch (error) {
+    console.error("Error al iniciar sesión:", error);
+    // Add user-friendly error message
+    if (error.code === 'auth/popup-closed-by-user') {
+      alert('Sign-in cancelled. Please try again.');
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+**User Action**: Simply click "CONTINUAR" again and complete the sign-in process.
+
+</Accordion>
+
+<Accordion title="User Session Not Persisting">
+
+### Problem
+User is logged out after refreshing the page.
+
+### Solution
+
+Implement Firebase Auth persistence:
+
+```javascript src/App.jsx
+import { useState, useEffect } from 'react';
+import { auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  // ... rest of component
+}
+```
+
+</Accordion>
+
+<Accordion title="'auth/unauthorized-domain' Error">
+
+### Problem
+```
+Error: This domain is not authorized for OAuth operations
+```
+
+### Solution
+
+1. Go to Firebase Console > Authentication > Settings
+2. Scroll to **Authorized domains**
+3. Click **Add domain**
+4. Add your domain:
+   - Development: `localhost`
+   - Production: `your-domain.com`
+5. Wait 1-2 minutes for changes to propagate
+6. Try signing in again
+
+</Accordion>
+
+## Firebase Connection Issues
+
+<Accordion title="Firestore Permission Denied Errors">
+
+### Problem
+```
+FirebaseError: Missing or insufficient permissions
+```
+
+### Solution
+
+1. **Check Security Rules**
+   
+   Verify rules in Firebase Console > Firestore Database > Rules:
+   
+   ```javascript
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       // Allow authenticated users to read/write their own notes
+       match /notas/{notaId} {
+         allow read, write: if request.auth != null && 
+                               resource.data.userId == request.auth.uid;
+       }
+     }
+   }
+   ```
+
+2. **Verify User Authentication**
+   
+   Ensure user is logged in before accessing Firestore:
+   ```javascript
+   if (!user || !user.uid) {
+     console.error('User not authenticated');
+     return;
+   }
+   ```
+
+3. **Check Document Structure**
+   
+   Ensure documents have required fields:
+   ```javascript src/servicios/notas.js:8
+   await addDoc(collection(db, "notas"), {
+     userId: user.uid,  // Required for security rules
+     titulo,
+     contenido,
+     // ... other fields
+   });
+   ```
+
+<Warning>
+  Never use `allow read, write: if true;` in production as it exposes your database publicly.
+</Warning>
+
+</Accordion>
+
+<Accordion title="'Failed to get document' Error">
+
+### Problem
+Unable to fetch documents from Firestore.
+
+### Solutions
+
+1. **Check Network Connection**
+   ```bash
+   # Test Firebase connection
+   curl https://firestore.googleapis.com
+   ```
+
+2. **Verify Firebase Initialization**
+   ```javascript src/firebase.js:19
+   const app = initializeApp(firebaseConfig);
+   const db = getFirestore(app);
+   
+   // Test connection
+   console.log('Firebase initialized:', app.name);
+   console.log('Firestore instance:', db.type);
+   ```
+
+3. **Check Firestore Indexes**
+   
+   Complex queries require indexes:
+   - Go to Firebase Console > Firestore Database > Indexes
+   - Click the link in error message to auto-create required index
+   - Wait 2-5 minutes for index to build
+
+4. **Enable Offline Persistence** (Optional)
+   ```javascript
+   import { enableIndexedDbPersistence } from 'firebase/firestore';
+   
+   enableIndexedDbPersistence(db).catch((err) => {
+     if (err.code == 'failed-precondition') {
+       console.log('Multiple tabs open');
+     } else if (err.code == 'unimplemented') {
+       console.log('Browser does not support offline');
+     }
+   });
+   ```
+
+</Accordion>
+
+<Accordion title="Real-Time Updates Not Working">
+
+### Problem
+Changes made by collaborators don't appear in real-time.
+
+### Solution
+
+1. **Verify Listener Setup**
+   
+   Ensure you're using `onSnapshot` instead of `getDocs`:
+   
+   ```javascript src/servicios/notas.js:96
+   // ✓ Correct (real-time)
+   export const suscribirNota = (notaId, callback) => {
+     const unsubscribe = onSnapshot(doc(db, "notas", notaId), (doc) => {
+       if (doc.exists()) {
+         callback({ ...doc.data(), id: doc.id });
+       }
+     });
+     return unsubscribe;
+   };
+   
+   // ✗ Wrong (one-time fetch)
+   const snapshot = await getDocs(query(...));
+   ```
+
+2. **Clean Up Listeners**
+   
+   Always unsubscribe when component unmounts:
+   ```javascript
+   useEffect(() => {
+     const unsubscribe = suscribirNota(notaId, (data) => {
+       setNota(data);
+     });
+     
+     return () => unsubscribe(); // Cleanup
+   }, [notaId]);
+   ```
+
+3. **Check Network Status**
+   
+   Real-time updates require active connection:
+   ```javascript
+   import { onDisconnect, onConnect } from 'firebase/database';
+   
+   // Monitor connection status
+   const connectedRef = ref(database, '.info/connected');
+   onValue(connectedRef, (snap) => {
+     if (snap.val() === true) {
+       console.log('Connected to Firebase');
+     } else {
+       console.log('Disconnected from Firebase');
+     }
+   });
+   ```
+
+</Accordion>
+
+## Build and Development Issues
+
+<Accordion title="'Module not found' Errors">
+
+### Problem
+```
+Error: Cannot find module 'firebase/app'
+```
+
+### Solution
+
+1. **Install Missing Dependencies**
+   ```bash
+   npm install
+   # or
+   npm install firebase
+   ```
+
+2. **Clear node_modules and Reinstall**
+   ```bash
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+3. **Check Import Paths**
+   ```javascript
+   // ✓ Correct
+   import { initializeApp } from "firebase/app";
+   
+   // ✗ Wrong
+   import { initializeApp } from "firebase";
+   ```
+
+</Accordion>
+
+<Accordion title="Vite Build Fails">
+
+### Problem
+Production build fails with errors.
+
+### Solutions
+
+1. **Check Vite Config**
+   ```javascript vite.config.js
+   import { defineConfig } from 'vite'
+   import react from '@vitejs/plugin-react'
+   
+   export default defineConfig({
+     plugins: [react()],
+     build: {
+       outDir: 'dist',
+       sourcemap: true,
+     },
+   })
+   ```
+
+2. **Clear Build Cache**
+   ```bash
+   rm -rf dist .vite node_modules/.vite
+   npm run build
+   ```
+
+3. **Check for Console Errors**
+   ```bash
+   npm run build 2>&1 | tee build.log
+   # Review build.log for detailed errors
+   ```
+
+</Accordion>
+
+<Accordion title="Tailwind Styles Not Applied">
+
+### Problem
+Tailwind CSS classes don't work or appear as plain text.
+
+### Solutions
+
+1. **Verify Tailwind is Imported**
+   ```css src/index.css:1
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+   ```
+
+2. **Check Content Paths in Config**
+   ```javascript tailwind.config.js
+   export default {
+     content: [
+       "./index.html",
+       "./src/**/*.{js,ts,jsx,tsx}",  // Ensure this matches your file structure
+     ],
+   }
+   ```
+
+3. **Restart Dev Server**
+   ```bash
+   # Stop the server (Ctrl+C) then restart
+   npm run dev
+   ```
+
+4. **Check PostCSS Config**
+   ```javascript postcss.config.js
+   export default {
+     plugins: {
+       tailwindcss: {},
+       autoprefixer: {},
+     },
+   }
+   ```
+
+</Accordion>
+
+## Browser Compatibility
+
+<Accordion title="3D Welcome Scene Not Rendering">
+
+### Problem
+The 3D nucleus on the welcome screen doesn't appear or shows a black screen.
+
+### Solutions
+
+1. **Check WebGL Support**
+   
+   Visit [https://get.webgl.org/](https://get.webgl.org/) to verify WebGL is enabled.
+
+2. **Update Graphics Drivers**
+   
+   Outdated drivers can cause WebGL issues:
+   - Windows: Update via Device Manager
+   - Mac: Update macOS
+   - Linux: Update GPU drivers
+
+3. **Enable Hardware Acceleration**
+   
+   In Chrome/Edge:
+   - Go to Settings > System
+   - Enable "Use hardware acceleration when available"
+   - Restart browser
+
+4. **Fallback for Unsupported Browsers**
+   
+   Add error boundary:
+   ```javascript
+   <Suspense fallback={
+     <div className="flex items-center justify-center h-screen">
+       <p>Loading 3D scene...</p>
+     </div>
+   }>
+     <Canvas>
+       {/* 3D content */}
+     </Canvas>
+   </Suspense>
+   ```
+
+<Info>
+  The welcome scene requires a browser with WebGL 2.0 support. Most modern browsers (Chrome 56+, Firefox 51+, Safari 15+) support this.
+</Info>
+
+</Accordion>
+
+<Accordion title="Editor Not Loading on Mobile">
+
+### Problem
+The Quill editor doesn't work properly on mobile devices.
+
+### Solution
+
+1. **Check Quill Mobile Support**
+   ```javascript src/quillSetup.js
+   import Quill from 'quill';
+   import 'quill/dist/quill.snow.css';
+   
+   // Add mobile-specific modules
+   const quillOptions = {
+     theme: 'snow',
+     modules: {
+       toolbar: [
+         ['bold', 'italic', 'underline'],
+         ['link', 'image'],
+       ],
+     },
+   };
+   ```
+
+2. **Add Viewport Meta Tag**
+   ```html index.html
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+   ```
+
+3. **Test on Real Devices**
+   
+   Mobile browsers may behave differently than desktop emulation.
+
+</Accordion>
+
+<Accordion title="Safari-Specific Issues">
+
+### Problem
+Features work in Chrome but fail in Safari.
+
+### Common Safari Issues
+
+1. **Date Constructor**
+   ```javascript
+   // ✗ Safari may fail
+   new Date('2024-01-01')
+   
+   // ✓ Safari-compatible
+   new Date('2024/01/01')
+   // or
+   new Date(2024, 0, 1)
+   ```
+
+2. **LocalStorage in Private Mode**
+   ```javascript
+   try {
+     localStorage.setItem('test', 'test');
+     localStorage.removeItem('test');
+   } catch (e) {
+     console.warn('LocalStorage not available:', e);
+     // Use alternative storage
+   }
+   ```
+
+3. **Flexbox Gaps**
+   ```css
+   /* ✗ Safari 14.0 and below don't support gap */
+   .flex { gap: 1rem; }
+   
+   /* ✓ Safari-compatible */
+   .flex > * { margin: 0.5rem; }
+   ```
+
+</Accordion>
+
+## Data and Storage Issues
+
+<Accordion title="Notes Not Saving">
+
+### Problem
+Changes to notes are lost after refresh or don't save at all.
+
+### Solutions
+
+1. **Check Save Function**
+   
+   Verify the save handler is called:
+   ```javascript src/componentes/DashboardLayout.jsx:25
+   const handleGuardarDesdeEditor = async (id, titulo, contenido, etiqueta, cover) => {
+     console.log('Saving note:', { id, titulo }); // Debug log
+     
+     if (id) {
+       await actualizarNota(id, titulo, contenido, etiqueta, cover);
+     } else {
+       const newId = await crearNota(user.uid, titulo, contenido, etiqueta, null, null, cover);
+       if (newId) {
+         setNotaActiva(prev => ({ ...prev, id: newId }));
+       }
+     }
+   };
+   ```
+
+2. **Verify Firestore Write Permissions**
+   
+   Check security rules allow writes:
+   ```javascript
+   match /notas/{notaId} {
+     allow create: if request.auth != null;
+     allow update: if request.auth.uid == resource.data.userId;
+   }
+   ```
+
+3. **Check for JavaScript Errors**
+   
+   Open browser console (F12) and look for red error messages.
+
+4. **Test Firestore Connection**
+   ```javascript
+   import { setDoc, doc } from 'firebase/firestore';
+   
+   // Test write
+   const testWrite = async () => {
+     try {
+       await setDoc(doc(db, 'test', 'test'), { test: true });
+       console.log('✓ Firestore write successful');
+     } catch (error) {
+       console.error('✗ Firestore write failed:', error);
+     }
+   };
+   ```
+
+</Accordion>
+
+<Accordion title="Collaborative Presence Not Showing">
+
+### Problem
+Can't see other users editing the same note in real-time.
+
+### Solution
+
+1. **Verify Presence Registration**
+   
+   ```javascript src/servicios/notas.js:108
+   // Call when opening a note
+   useEffect(() => {
+     if (notaId && user) {
+       registrarPresencia(notaId, user);
+       
+       // Clean up when leaving
+       return () => {
+         retirarPresencia(notaId, user.uid);
+       };
+     }
+   }, [notaId, user]);
+   ```
+
+2. **Subscribe to Presence Updates**
+   ```javascript
+   useEffect(() => {
+     const unsubscribe = suscribirPresencia(notaId, (usuarios) => {
+       setUsuariosActivos(usuarios);
+     });
+     return () => unsubscribe();
+   }, [notaId]);
+   ```
+
+3. **Check Subcollection Security Rules**
+   ```javascript
+   match /notas/{notaId}/presencia/{userId} {
+     allow read: if request.auth != null;
+     allow write: if request.auth.uid == userId;
+   }
+   ```
+
+</Accordion>
+
+## Performance Issues
+
+<Accordion title="Slow App Performance">
+
+### Problem
+App feels sluggish or unresponsive.
+
+### Solutions
+
+1. **Check Bundle Size**
+   ```bash
+   npm run build
+   # Look for large chunks in output
+   ```
+
+2. **Lazy Load Routes**
+   ```javascript
+   import { lazy, Suspense } from 'react';
+   
+   const EditorView = lazy(() => import('./views/EditorView'));
+   const ProjectsView = lazy(() => import('./views/ProjectsView'));
+   
+   <Suspense fallback={<Loading />}>
+     <EditorView />
+   </Suspense>
+   ```
+
+3. **Optimize Firestore Queries**
+   ```javascript
+   // ✗ Fetches all notes
+   const q = query(collection(db, "notas"));
+   
+   // ✓ Only fetch user's notes
+   const q = query(
+     collection(db, "notas"), 
+     where("userId", "==", user.uid),
+     limit(50)
+   );
+   ```
+
+4. **Memoize Expensive Calculations**
+   ```javascript
+   import { useMemo } from 'react';
+   
+   const filteredNotes = useMemo(() => {
+     return notes.filter(note => !note.enPapelera);
+   }, [notes]);
+   ```
+
+</Accordion>
+
+## Getting Help
+
+If you're still experiencing issues:
+
+1. **Check Browser Console** (F12) for error messages
+2. **Review Firebase Console** for authentication and Firestore errors
+3. **Test in Incognito Mode** to rule out extension conflicts
+4. **Check Network Tab** to verify API calls are successful
+5. **Review Security Rules** to ensure permissions are correct
+
+<Note>
+  When reporting issues, include:
+  - Browser name and version
+  - Error messages from console
+  - Steps to reproduce the problem
+  - Screenshots if applicable
+</Note>
+
+## Additional Resources
+
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [Vite Troubleshooting](https://vitejs.dev/guide/troubleshooting.html)
+- [React Three Fiber Debugging](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction)
+- [Tailwind CSS IntelliSense](https://tailwindcss.com/docs/editor-setup)

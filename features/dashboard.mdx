@@ -1,0 +1,262 @@
+---
+title: 'Dashboard'
+description: 'Your command center for managing quick notes and navigating the platform'
+icon: 'terminal'
+---
+
+## Overview
+
+The Dashboard is your home base in NoteMV - a clean, terminal-inspired interface for accessing your quick notes and navigating between different sections of the platform.
+
+<CardGroup cols={2}>
+  <Card title="Quick Access" icon="bolt">
+    Instant access to all your recent notes and navigation options
+  </Card>
+  <Card title="Search Ready" icon="magnifying-glass">
+    Global search bar available in the header for finding anything quickly
+  </Card>
+  <Card title="Smart Sidebar" icon="bars">
+    Persistent navigation that adapts based on your current view
+  </Card>
+  <Card title="Live Status" icon="circle-dot">
+    Real-time status indicators and user presence
+  </Card>
+</CardGroup>
+
+## Navigation Structure
+
+### Sidebar Menu
+
+The sidebar provides quick access to all major sections:
+
+<Tabs>
+  <Tab title="Dashboard">
+    **Home View** - Your quick notes and recent activity
+    
+    - View all personal notes not attached to projects
+    - Create new quick notes instantly
+    - Filter and search through your content
+    - Visual indicators for note metadata (tags, dates)
+  </Tab>
+  
+  <Tab title="Mis Proyectos">
+    **Project Workspace** - Organized collaborative work
+    
+    - Access all your projects and shared workspaces
+    - See project ownership and roles at a glance
+    - Navigate to project files, tasks, and team collaboration
+  </Tab>
+  
+  <Tab title="Snippets">
+    **Code Library** - Reusable code snippets
+    
+    - Save frequently used code blocks
+    - Quick reference for common patterns
+    - Tag and organize by language or framework
+  </Tab>
+  
+  <Tab title="Papelera">
+    **Trash Bin** - Deleted items management
+    
+    - Review deleted notes and folders
+    - Restore accidentally deleted items
+    - Permanently delete unwanted content
+  </Tab>
+</Tabs>
+
+## Dashboard Home
+
+### Quick Notes Grid
+
+Your dashboard displays all standalone notes (not associated with projects) in a responsive grid layout:
+
+```
+┌─────────────────────────────────────────────────┐
+│  ~/notas_rapidas                   Total: 12    │
+├─────────────┬─────────────┬─────────────────────┤
+│   + NEW     │  Note Title │   Another Note      │
+│   NOTE      │  Preview... │   Content preview   │
+│   CARD      │  General    │   React • Today     │
+└─────────────┴─────────────┴─────────────────────┘
+```
+
+**Note Cards Include:**
+- **Title** - The note's heading
+- **Content Preview** - First few lines of the note
+- **Tag Badge** - Category label (General, React, Python, etc.)
+- **Creation Date** - When the note was created
+- **Quick Actions** - Delete button (visible on hover)
+
+### Creating New Notes
+
+<Steps>
+  <Step title="Click the '+' Card">
+    The first card in the grid is always the "Nueva Nota Rápida" button
+  </Step>
+  
+  <Step title="Enter Editor">
+    Opens immediately in full-screen editor mode
+  </Step>
+  
+  <Step title="Start Writing">
+    Add a title, select a tag, and begin writing with rich text formatting
+  </Step>
+  
+  <Step title="Auto-Save">
+    Changes are saved automatically every 2 seconds
+  </Step>
+</Steps>
+
+<Note>
+  Quick notes are perfect for temporary thoughts, meeting notes, or ideas that don't belong to a specific project yet.
+</Note>
+
+## Header Features
+
+### Navigation Breadcrumb
+
+The header displays your current location:
+
+```bash
+root / dashboard
+root / projects
+root / snippets
+```
+
+### Global Search
+
+A search bar is always available in the top-right corner:
+
+<Accordion title="Search Tips">
+  - **Instant Search** - Results appear as you type
+  - **Cross-Section** - Searches notes, projects, and snippets
+  - **Smart Filtering** - Uses tags and metadata for better results
+  - **Keyboard Shortcut** - Click the search bar to activate
+</Accordion>
+
+## User Profile Section
+
+Located at the bottom of the sidebar:
+
+<CardGroup cols={2}>
+  <Card title="Profile Display">
+    - User photo (from Google account)
+    - Display name
+    - Role badge ("Dev_Admin")
+  </Card>
+  
+  <Card title="Quick Actions">
+    - **Disconnect Button** - Log out safely
+    - **Settings** (future feature)
+    - **Theme Toggle** (future feature)
+  </Card>
+</CardGroup>
+
+## Visual Design
+
+### Terminal-Inspired Theme
+
+NoteMV features a unique cyberpunk/terminal aesthetic:
+
+- **Dark Background** - `#050505` base with grid overlay
+- **Green Accents** - `#22c55e` for primary actions
+- **Glowing Effects** - Subtle shadows and hover states
+- **Monospace Headers** - Clean, developer-focused typography
+- **Animated Transitions** - Smooth slide-ups and fades
+
+<Tip>
+  The "NOTEMV_OS" branding with pulsing green dot reinforces the terminal theme throughout the platform.
+</Tip>
+
+## Note Management
+
+### Viewing Notes
+
+Click any note card to open it in the full editor. The editor provides:
+
+- Full rich text editing capabilities
+- Real-time collaboration indicators
+- Version history (Time Machine)
+- PDF export functionality
+
+### Organizing Notes
+
+<Warning>
+  Notes in the Dashboard view are **standalone** and not part of any project. To organize related notes, move them into a project workspace.
+</Warning>
+
+**Organization Options:**
+
+1. **Tags** - Categorize with labels (General, React, JS, Python, Git)
+2. **Projects** - Move to a project folder structure
+3. **Trash** - Archive notes you no longer need
+
+### Deleting Notes
+
+Notes are moved to the Papelera (Trash) rather than permanently deleted:
+
+<Steps>
+  <Step title="Hover Over Note">
+    The trash icon appears in the top-right corner
+  </Step>
+  
+  <Step title="Confirm Deletion">
+    Click the trash icon and confirm the action
+  </Step>
+  
+  <Step title="Restore if Needed">
+    Access the Papelera from the sidebar to restore deleted items
+  </Step>
+</Steps>
+
+## Keyboard Navigation
+
+| Action | Shortcut | Description |
+|--------|----------|-------------|
+| New Note | Click + card | Create a new quick note |
+| Search | Click search bar | Activate global search |
+| Navigate | Sidebar clicks | Switch between sections |
+| Close Editor | Back button | Return to dashboard |
+
+<Tip>
+  The dashboard automatically refreshes when returning from the editor, ensuring you always see the latest content.
+</Tip>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep Dashboard Organized">
+    - Use tags consistently to categorize notes
+    - Move long-term notes into projects
+    - Delete or archive old notes regularly
+    - Keep quick notes for temporary items only
+  </Accordion>
+  
+  <Accordion title="Efficient Navigation">
+    - Memorize sidebar sections for quick access
+    - Use search for finding specific content
+    - Leverage breadcrumbs to track your location
+    - Keep frequently accessed projects visible
+  </Accordion>
+  
+  <Accordion title="Note Hygiene">
+    - Review notes weekly
+    - Convert useful quick notes into project docs
+    - Use descriptive titles for easy scanning
+    - Delete duplicate or outdated content
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={3}>
+  <Card title="Projects" icon="folder" href="/features/projects">
+    Organize notes into structured workspaces
+  </Card>
+  <Card title="Editor" icon="pen" href="/features/editor">
+    Rich text editing with collaboration
+  </Card>
+  <Card title="Kanban" icon="table-columns" href="/features/kanban">
+    Task management within projects
+  </Card>
+</CardGroup>

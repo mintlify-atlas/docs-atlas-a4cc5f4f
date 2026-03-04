@@ -1,0 +1,490 @@
+---
+title: Documents & Resources
+description: Attach external documents, view files, and manage project resources
+---
+
+## Overview
+
+NoteMV's Documents feature allows you to attach external resources to projects—such as Google Drive files, PDFs, images, and web links. All resources are accessible through a built-in document viewer.
+
+## Accessing the Documents Tab
+
+<Steps>
+  <Step title="Open a Project">
+    Navigate to any project from your projects list.
+  </Step>
+  
+  <Step title="Click 'Documentos' Tab">
+    In the project header, click the "Documentos" (Documents) tab.
+    
+    This switches from the files/tasks view to the documents resource library.
+  </Step>
+  
+  <Step title="View Resources">
+    The documents view displays:
+    
+    - Grid layout of all attached documents
+    - Document type indicators (PDF, Word, Image, Link)
+    - Preview cards with metadata
+  </Step>
+</Steps>
+
+<Note>
+Only **Editors** and **Owners** can add or remove documents. **Viewers** can see and open documents but cannot modify the list.
+</Note>
+
+## Adding External Documents
+
+<Steps>
+  <Step title="Click 'Nuevo Documento'">
+    In the documents tab, click the "+ Nuevo Documento" button (top-right).
+    
+    <Warning>
+    If you don't see this button, you have **Viewer** permissions and cannot add documents.
+    </Warning>
+  </Step>
+  
+  <Step title="Enter Document Name">
+    In the modal, enter a descriptive name:
+    
+    ```plaintext
+    Especificación de Requisitos.pdf
+    Brand Guidelines 2024
+    Wireframe Mockups
+    ```
+    
+    This is how the document will appear in the list.
+  </Step>
+  
+  <Step title="Paste the Link">
+    In the "Enlace" field, paste the public URL to your document.
+    
+    Supported sources:
+    - Google Drive (shared links)
+    - Dropbox (public links)
+    - Direct file URLs (PDFs, images)
+    - Any web URL
+    
+    **Example Google Drive URL:**
+    ```plaintext
+    https://drive.google.com/file/d/1ABC.../view?usp=sharing
+    ```
+  </Step>
+  
+  <Step title="Save Document">
+    Click "Guardar" to add the document.
+    
+    The document appears immediately in the grid view.
+  </Step>
+</Steps>
+
+<Tip>
+**Getting Google Drive Public Links:**
+
+1. Open the file in Google Drive
+2. Click "Share" button
+3. Change access to "Anyone with the link"
+4. Copy the link
+5. Paste into NoteMV
+</Tip>
+
+## Supported File Types
+
+NoteMV automatically detects document types based on the URL:
+
+<Tabs>
+  <Tab title="PDFs">
+    **PDF Documents**
+    
+    - **Icon**: 🟥 (Red square)
+    - **Detection**: URLs containing `.pdf`
+    - **Viewer**: Google Docs Viewer iframe
+    - **Use Cases**: Reports, specifications, contracts
+    
+    ```plaintext
+    https://example.com/document.pdf
+    ```
+  </Tab>
+  
+  <Tab title="Word Documents">
+    **Microsoft Word / Google Docs**
+    
+    - **Icon**: 🟦 (Blue square)
+    - **Detection**: URLs containing `.doc`, `.docx`, or `drive.google`, `docs.google`
+    - **Viewer**: Google Docs Viewer iframe
+    - **Use Cases**: Meeting notes, proposals, documentation
+    
+    ```plaintext
+    https://docs.google.com/document/d/...
+    https://example.com/document.docx
+    ```
+  </Tab>
+  
+  <Tab title="Images">
+    **Image Files**
+    
+    - **Icon**: 🖼️ (Picture frame)
+    - **Detection**: URLs ending with `.jpeg`, `.jpg`, `.gif`, `.png`
+    - **Viewer**: Native image viewer (centered, responsive)
+    - **Use Cases**: Designs, screenshots, diagrams
+    
+    ```plaintext
+    https://example.com/design.png
+    ```
+  </Tab>
+  
+  <Tab title="Generic Links">
+    **Other Web Links**
+    
+    - **Icon**: 🔗 (Link)
+    - **Detection**: Any URL not matching above patterns
+    - **Viewer**: Google Docs Viewer (attempts to render)
+    - **Use Cases**: Websites, Figma, Miro boards, online tools
+    
+    ```plaintext
+    https://figma.com/file/...
+    https://miro.com/board/...
+    ```
+  </Tab>
+</Tabs>
+
+## Document Type Detection Logic
+
+Under the hood, NoteMV uses this logic:
+
+```javascript
+let tipo = "link"; // default
+const urlLower = nuevoLink.toLowerCase();
+
+if (urlLower.includes('pdf')) tipo = "pdf";
+
+if (urlLower.includes('doc') || 
+    urlLower.includes('drive.google') || 
+    urlLower.includes('docs.google')) tipo = "word";
+
+if (urlLower.match(/\.(jpeg|jpg|gif|png)/)) tipo = "image";
+```
+
+## Viewing Documents
+
+### Quick View
+
+<Steps>
+  <Step title="Click Document Card">
+    In the documents grid, click any document card.
+    
+    Alternatively, click the "👁️ Ver" (View) button.
+  </Step>
+  
+  <Step title="Document Viewer Opens">
+    A full-screen modal appears with:
+    
+    - **Header**: Document name and type icon
+    - **Viewer area**: Embedded document or image
+    - **Close button**: ✕ to exit viewer
+  </Step>
+  
+  <Step title="Interact with Document">
+    Depending on type:
+    
+    - **PDFs**: Scroll, zoom, navigate pages
+    - **Docs**: Read-only view (edit in Google Docs via "Abrir")
+    - **Images**: Full-size display, pinch-to-zoom on mobile
+  </Step>
+</Steps>
+
+### Open in New Tab
+
+For full functionality:
+
+1. Click the "🔗 Abrir" (Open) button on the document card
+2. Document opens in a new browser tab
+3. Full features available (editing, downloading, etc.)
+
+<Tip>
+For Google Drive documents, clicking "Abrir" opens the file in Google Docs/Sheets/Slides with full editing capabilities (if you have permission).
+</Tip>
+
+## The Document Viewer
+
+NoteMV uses Google Docs Viewer for file rendering:
+
+### How It Works
+
+```html
+<!-- For non-image files -->
+<iframe 
+  src="https://docs.google.com/gview?url=ENCODED_URL&embedded=true"
+  width="100%" 
+  height="100%"
+>
+</iframe>
+
+<!-- For images -->
+<img src="DOCUMENT_URL" style="max-width:100%; max-height:100%;" />
+```
+
+### Supported Formats (via Google Viewer)
+
+- **Microsoft Office**: .doc, .docx, .xls, .xlsx, .ppt, .pptx
+- **PDF**: .pdf
+- **Images**: .jpeg, .jpg, .png, .gif
+- **Text**: .txt
+- **PostScript**: .ps
+
+### Limitations
+
+<Warning>
+Google Docs Viewer may not support:
+
+- Very large files (>25 MB)
+- Password-protected documents
+- Files without public access
+- Proprietary formats (Sketch, Figma files)
+
+For unsupported formats, use the "🔗 Abrir" button to view in the native application.
+</Warning>
+
+## Managing Documents
+
+### Document Metadata
+
+Each document stores:
+
+```javascript
+{
+  nombre: "Document Name",
+  url: "https://...",
+  tipo: "pdf" | "word" | "image" | "link",
+  fecha: "2024-03-04T12:00:00.000Z"
+}
+```
+
+This data is saved in the project's `adjuntos` array:
+
+```javascript
+// Project structure
+{
+  nombre: "Project Name",
+  // ... other fields
+  adjuntos: [
+    { nombre: "Doc 1", url: "...", tipo: "pdf", fecha: "..." },
+    { nombre: "Doc 2", url: "...", tipo: "word", fecha: "..." }
+  ]
+}
+```
+
+### Deleting Documents
+
+<Steps>
+  <Step title="Locate Document">
+    Find the document you want to remove in the grid.
+  </Step>
+  
+  <Step title="Click Delete Button">
+    Click the 🗑️ (trash) button on the document card.
+  </Step>
+  
+  <Step title="Confirm Deletion">
+    A confirmation dialog appears:
+    
+    ```plaintext
+    ¿Seguro que quieres quitar este documento?
+    ```
+  </Step>
+  
+  <Step title="Document Removed">
+    The document is immediately removed from the project's `adjuntos` array.
+    
+    <Note>
+    This only removes the **reference** from NoteMV. The original file on Google Drive/Dropbox remains untouched.
+    </Note>
+  </Step>
+</Steps>
+
+### Reordering Documents
+
+Currently, documents appear in the order they were added (oldest to newest based on `fecha` timestamp). Manual reordering is not yet supported.
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Design Resources" icon="palette">
+    **Attach Design Files**
+    
+    - Brand guidelines (PDF)
+    - Logo assets (PNG/SVG)
+    - Wireframes (Figma links)
+    - Style guides (Google Docs)
+  </Card>
+  
+  <Card title="Project Documentation" icon="book">
+    **Link Important Docs**
+    
+    - Requirements specs (PDF)
+    - Technical documentation (Docs)
+    - API references (web links)
+    - Architecture diagrams (images)
+  </Card>
+  
+  <Card title="Client Deliverables" icon="handshake">
+    **Organize Deliverables**
+    
+    - Proposals (PDF)
+    - Contracts (DocuSign links)
+    - Invoices (Google Sheets)
+    - Final reports (PDF)
+  </Card>
+  
+  <Card title="Research Materials" icon="flask">
+    **Collect Research**
+    
+    - Competitor analyses (PDF)
+    - Market research (links)
+    - Screenshots (images)
+    - Survey results (Sheets)
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Descriptive Names">
+    Instead of:
+    ```plaintext
+    Document.pdf
+    File123.docx
+    ```
+    
+    Use:
+    ```plaintext
+    Q1_2024_Sales_Report.pdf
+    Brand_Guidelines_v2.docx
+    ```
+    
+    This makes documents easier to find and understand at a glance.
+  </Accordion>
+  
+  <Accordion title="Organize by Category">
+    Prefix document names with categories:
+    
+    ```plaintext
+    [Design] Brand Guidelines.pdf
+    [Legal] Service Agreement.pdf
+    [Dev] API Documentation.pdf
+    ```
+    
+    This creates visual grouping in the grid view.
+  </Accordion>
+  
+  <Accordion title="Ensure Public Access">
+    Before adding a document:
+    
+    1. Verify the link works in an incognito browser window
+    2. Set sharing to "Anyone with the link" for Drive files
+    3. Test the link in NoteMV's viewer
+    
+    Private links will fail to load in the viewer.
+  </Accordion>
+  
+  <Accordion title="Version Your Documents">
+    Include version numbers or dates:
+    
+    ```plaintext
+    Project_Proposal_v1.pdf
+    Project_Proposal_v2_Final.pdf
+    Wireframes_2024-03-01.png
+    ```
+    
+    This helps track document evolution.
+  </Accordion>
+  
+  <Accordion title="Clean Up Outdated Files">
+    Periodically:
+    
+    - Remove superseded documents
+    - Update links if files moved
+    - Delete test/draft documents
+    
+    Keep the documents tab focused and relevant.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Document Won't Load in Viewer
+
+If a document fails to display:
+
+<Steps>
+  <Step title="Check Link Validity">
+    Copy the URL and paste it in a new browser tab.
+    
+    If it requires login, it's not publicly accessible.
+  </Step>
+  
+  <Step title="Verify File Size">
+    Google Docs Viewer has a 25 MB limit.
+    
+    For larger files, use "Abrir" to view externally.
+  </Step>
+  
+  <Step title="Try Opening Externally">
+    Click "🔗 Abrir" to open in a new tab.
+    
+    This bypasses the embedded viewer.
+  </Step>
+  
+  <Step title="Re-add the Document">
+    If all else fails:
+    1. Delete the document from NoteMV
+    2. Verify the link is public
+    3. Re-add with a fresh URL
+  </Step>
+</Steps>
+
+### Google Drive Files Show Login Prompt
+
+If the viewer asks you to sign in:
+
+1. The file is **not publicly shared**
+2. Go to Google Drive and change sharing settings:
+   - Right-click file → Share
+   - Change to "Anyone with the link"
+   - Copy the new link
+3. Update the document URL in NoteMV
+
+### Image Doesn't Display
+
+For image files:
+
+- Ensure the URL is a **direct link** to the image
+- URLs should end in `.jpg`, `.png`, etc.
+- Dropbox links may need `?dl=1` parameter:
+  ```plaintext
+  https://www.dropbox.com/s/abc123/image.png?dl=1
+  ```
+
+## Future Enhancements
+
+Planned features for documents:
+
+- **Drag-and-drop file upload**: Upload files directly to NoteMV storage
+- **Thumbnail previews**: Visual previews in grid view
+- **Folders/categories**: Organize documents into sections
+- **Search**: Find documents by name or type
+- **Comments**: Annotate and discuss documents
+
+## Next Steps
+
+You've completed all the user guide sections! Here are some advanced topics:
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="code" href="/api/notas">
+    Explore NoteMV's API for programmatic access
+  </Card>
+  
+  <Card title="Managing Projects" icon="folder-tree" href="/guide/managing-projects">
+    Learn how to organize your projects effectively
+  </Card>
+</CardGroup>

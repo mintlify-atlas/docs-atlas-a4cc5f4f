@@ -1,0 +1,488 @@
+---
+title: Sharing & Collaboration
+description: Invite team members, set roles, and manage project permissions
+---
+
+## Overview
+
+NoteMV's collaboration features enable teams to work together on projects in real-time. Invite collaborators, assign roles with specific permissions, and manage your team—all from within the platform.
+
+## Understanding Roles
+
+NoteMV uses a three-tier permission model:
+
+<CardGroup cols={3}>
+  <Card title="Owner" icon="crown" color="#eab308">
+    **Full Control**
+    
+    - All Editor permissions
+    - Invite/remove collaborators
+    - Manage team roles
+    - Edit project settings
+    - Delete project
+    
+    **Badge**: 👑 Yellow border
+  </Card>
+  
+  <Card title="Editor" icon="pen" color="#3b82f6">
+    **Read + Write**
+    
+    - Create/edit/delete notes
+    - Create/manage folders
+    - Move items
+    - Manage tasks
+    - Add external documents
+    
+    **Badge**: ✏️ Blue border
+  </Card>
+  
+  <Card title="Viewer" icon="eye" color="#6b7280">
+    **Read-Only**
+    
+    - View all notes
+    - View tasks
+    - View documents
+    - Download/print notes
+    - No editing capabilities
+    
+    **Badge**: 👁️ Gray border
+  </Card>
+</CardGroup>
+
+## Permission Matrix
+
+Detailed breakdown of what each role can do:
+
+| Feature | Viewer | Editor | Owner |
+|---------|--------|--------|-------|
+| **Content** |
+| View notes | ✅ | ✅ | ✅ |
+| Create notes | ❌ | ✅ | ✅ |
+| Edit notes | ❌ | ✅ | ✅ |
+| Delete notes | ❌ | ✅ | ✅ |
+| Export to PDF | ✅ | ✅ | ✅ |
+| **Organization** |
+| View folders | ✅ | ✅ | ✅ |
+| Create folders | ❌ | ✅ | ✅ |
+| Move items | ❌ | ✅ | ✅ |
+| Delete folders | ❌ | ✅ | ✅ |
+| **Tasks** |
+| View Kanban board | ✅ | ✅ | ✅ |
+| Create tasks | ❌ | ✅ | ✅ |
+| Move tasks | ❌ | ✅ | ✅ |
+| Edit tasks | ❌ | ✅ | ✅ |
+| Delete tasks | ❌ | ✅ | ✅ |
+| **Team** |
+| View team members | ✅ | ✅ | ✅ |
+| Invite collaborators | ❌ | ❌ | ✅ |
+| Change roles | ❌ | ❌ | ✅ |
+| Remove collaborators | ❌ | ❌ | ✅ |
+| **Project** |
+| Edit project info | ❌ | ✅ | ✅ |
+| Delete project | ❌ | ❌ | ✅ |
+
+## Inviting Collaborators
+
+<Steps>
+  <Step title="Open Project">
+    Navigate to the project you want to share.
+    
+    <Warning>
+    Only the **Owner** can invite collaborators. If you don't see the "Invitar" button, you don't have owner permissions.
+    </Warning>
+  </Step>
+  
+  <Step title="Click 'Invitar'">
+    Click the "🔗 Invitar" (Invite) button in the project header.
+    
+    An invitation modal will appear.
+  </Step>
+  
+  <Step title="Enter Email Address">
+    Type the email address of the person you want to invite.
+    
+    ```plaintext
+    correo@ejemplo.com
+    ```
+    
+    <Tip>
+    The email must be a valid Gmail or Google Workspace account since NoteMV uses Google Sign-In.
+    </Tip>
+  </Step>
+  
+  <Step title="Select Role">
+    Choose the appropriate permission level:
+    
+    - **👀 Visor** (Viewer): Read-only access
+    - **✏️ Editor**: Full editing capabilities
+    
+    Consider:
+    - What will this person need to do?
+    - How much control should they have?
+    - Can you trust them with editing rights?
+  </Step>
+  
+  <Step title="Send Invitation">
+    Click "Copiar Link" (Copy Link).
+    
+    NoteMV will:
+    1. Add the user to the project's `accesos` array
+    2. Store their role in the `colaboradores` array
+    3. Generate an invitation message
+    4. Copy the message to your clipboard
+  </Step>
+  
+  <Step title="Share the Invitation">
+    The copied message includes:
+    
+    ```plaintext
+    Hola! 🚀 Te invito a colaborar en "[Project Name]".
+    Accede: https://notemv.app
+    ```
+    
+    Send this message to your collaborator via:
+    - Email
+    - Slack/Teams
+    - SMS
+    - Any messaging platform
+  </Step>
+</Steps>
+
+### How Invitations Work
+
+Under the hood, NoteMV uses Firebase arrays for collaboration:
+
+```javascript
+// Project document structure
+{
+  accesos: [
+    "owner@email.com",
+    "collaborator1@email.com",
+    "collaborator2@email.com"
+  ],
+  colaboradores: [
+    {
+      email: "collaborator1@email.com",
+      rol: "editor",
+      fecha: Timestamp
+    },
+    {
+      email: "collaborator2@email.com",
+      rol: "visor",
+      fecha: Timestamp
+    }
+  ]
+}
+```
+
+- **`accesos`**: Quick lookup array for filtering projects by email
+- **`colaboradores`**: Detailed role information for permission checks
+
+## Managing Your Team
+
+### Viewing Team Members
+
+<Steps>
+  <Step title="Open Team Panel">
+    Click the "👥 Equipo" (Team) button in the project header.
+  </Step>
+  
+  <Step title="Review Members">
+    The team management panel shows:
+    
+    - **Owner**: Highlighted with 👑 icon and yellow border
+    - **Collaborators**: Listed with their role and join date
+    - **Role badges**: Visual indicators (✏️ Editor, 👁️ Viewer)
+  </Step>
+</Steps>
+
+### Changing User Roles
+
+<Steps>
+  <Step title="Open Team Panel">
+    Click "👥 Equipo" to open team management.
+  </Step>
+  
+  <Step title="Locate User">
+    Find the collaborator whose role you want to change.
+  </Step>
+  
+  <Step title="Select New Role">
+    Click the role dropdown next to their name.
+    
+    Choose between:
+    - **👁️ Visor** (Viewer)
+    - **✏️ Editor** (Editor)
+  </Step>
+  
+  <Step title="Confirm Change">
+    A confirmation dialog asks:
+    
+    ```plaintext
+    ¿Cambiar rol de user@email.com a editor?
+    ```
+    
+    Click "OK" to confirm.
+  </Step>
+  
+  <Step title="Role Updated">
+    The change takes effect immediately:
+    
+    - User's permissions update in real-time
+    - If they're currently in the project, their UI refreshes
+    - Role badge updates for all team members
+  </Step>
+</Steps>
+
+<Note>
+Role changes are implemented using Firestore's `updateDoc` with array manipulation to modify the specific collaborator object.
+</Note>
+
+### Removing Collaborators
+
+<Steps>
+  <Step title="Open Team Panel">
+    Navigate to "👥 Equipo" (Team).
+  </Step>
+  
+  <Step title="Find User to Remove">
+    Locate the collaborator in the list.
+  </Step>
+  
+  <Step title="Click Remove Button">
+    Click the 🗑️ (trash) icon next to their name.
+  </Step>
+  
+  <Step title="Confirm Removal">
+    A confirmation dialog appears:
+    
+    ```plaintext
+    ¿Seguro que quieres eliminar a user@email.com del proyecto?
+    ```
+    
+    Click "OK" to proceed.
+  </Step>
+  
+  <Step title="User Removed">
+    The system:
+    
+    1. Removes user from `colaboradores` array
+    2. Removes email from `accesos` array
+    3. If they're currently viewing the project, they're notified:
+       ```plaintext
+       Ya no tienes acceso a este proyecto.
+       ```
+    4. They're redirected to the projects list
+  </Step>
+</Steps>
+
+<Warning>
+**Removing a user is immediate and cannot be undone.** They'll need to be re-invited if you want to restore their access.
+</Warning>
+
+## Real-Time Collaboration Features
+
+### Live Presence Indicators
+
+See who's actively editing a note:
+
+<Steps>
+  <Step title="Open a Note">
+    Navigate to any note in a shared project.
+  </Step>
+  
+  <Step title="View Active Users">
+    The top bar displays:
+    
+    - **Profile avatars**: Circular profile images of active users
+    - **Green indicator**: "• X online" shows number of collaborators
+    - **Hover for info**: Hover over avatars to see names
+  </Step>
+</Steps>
+
+Presence is tracked using Firestore subcollections:
+
+```javascript
+// notas/{notaId}/presencia/{userId}
+{
+  uid: "user-id",
+  displayName: "User Name",
+  photoURL: "https://...",
+  email: "user@email.com",
+  color: "#3b82f6", // Random color for cursor/avatar
+  conectado: ServerTimestamp
+}
+```
+
+### Real-Time Document Sync
+
+Changes sync instantly across all editors:
+
+1. **User A** types in the editor
+2. **Autosave** triggers after 2 seconds
+3. **Firestore** updates the note document
+4. **User B's** editor receives the update via `onSnapshot`
+5. **Content** updates without refresh
+
+<Note>
+NoteMV uses a "last write wins" strategy. The `isLocalChange` flag prevents your own edits from triggering unnecessary re-renders.
+</Note>
+
+### Project Chat
+
+Every project includes a floating chat widget:
+
+- **Always accessible**: Available in all project views
+- **Real-time messages**: Instant delivery to all team members
+- **User attribution**: Messages show sender's name and photo
+- **Persistent**: Chat history is preserved
+
+Access chat via the floating bubble in the bottom-right corner.
+
+## Collaboration Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start with Viewer Role">
+    When inviting new collaborators:
+    
+    1. Start with **Viewer** role
+    2. Let them explore the project
+    3. Upgrade to **Editor** once they're familiar
+    
+    This prevents accidental deletions or overwrites.
+  </Accordion>
+  
+  <Accordion title="Communicate Role Changes">
+    Before changing someone's role:
+    
+    - Let them know via chat or externally
+    - Explain why the change is being made
+    - Give them time to save any work in progress
+  </Accordion>
+  
+  <Accordion title="Use Descriptive Commit Messages">
+    When editing shared notes:
+    
+    - Make meaningful changes
+    - Don't leave notes half-edited
+    - Use chat to coordinate major changes
+  </Accordion>
+  
+  <Accordion title="Regular Access Reviews">
+    Periodically review your team:
+    
+    - Remove users who no longer need access
+    - Update roles as responsibilities change
+    - Keep the team lean and relevant
+  </Accordion>
+  
+  <Accordion title="Avoid Simultaneous Editing">
+    While NoteMV supports real-time sync:
+    
+    - Coordinate who edits what section
+    - Use chat to claim sections: "Working on the intro"
+    - Last edit wins—communicate to avoid overwrites
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Collaborator Can't Access Project
+
+If an invited user can't see the project:
+
+<Steps>
+  <Step title="Verify Email">
+    Ensure you invited the correct email address.
+    
+    Check the team panel—their email should be listed.
+  </Step>
+  
+  <Step title="Confirm Google Account">
+    The user must sign in with the **exact** Gmail address you invited.
+    
+    - NoteMV matches by email string
+    - Different Google accounts = different access
+  </Step>
+  
+  <Step title="Refresh Browser">
+    Have the user:
+    1. Refresh the page (F5)
+    2. Check the "Compartidos Conmigo" section
+    3. Sign out and sign back in if needed
+  </Step>
+  
+  <Step title="Re-invite if Needed">
+    If still not working:
+    1. Remove the user from the team
+    2. Re-invite with the correct email
+  </Step>
+</Steps>
+
+### User Has Wrong Permissions
+
+If a collaborator can't perform an expected action:
+
+1. **Check their role** in the team panel
+2. **Verify permission requirements** using the matrix above
+3. **Update their role** if needed
+4. **Refresh the page** to ensure UI updates
+
+### Conflicting Edits
+
+If two users edit simultaneously:
+
+- **Last save wins**: The most recent autosave or manual save takes precedence
+- **Use version history**: Restore previous versions if needed (⏳ Time Machine)
+- **Communicate**: Use project chat to coordinate edits
+
+## Access Control Implementation
+
+For developers interested in how permissions work:
+
+### Frontend Permission Checks
+
+```javascript
+// Derived from project data
+const puedeEditar = proyectoActivo?.miRol === 'owner' || 
+                    proyectoActivo?.miRol === 'editor';
+
+const esDueno = proyectoActivo?.miRol === 'owner';
+
+// Used throughout UI
+{puedeEditar && (
+  <button onClick={handleCreate}>Create Note</button>
+)}
+```
+
+### Role Calculation
+
+```javascript
+// When fetching projects
+let miRol = 'owner';
+if (data.userId !== userId) {
+  const colaborador = data.colaboradores?.find(c => c.email === userEmail);
+  miRol = colaborador ? colaborador.rol : 'visor';
+}
+```
+
+### Database Queries
+
+```javascript
+// Fetch user's accessible projects
+const q1 = query(
+  collection(db, "proyectos"),
+  where("userId", "==", userId) // Owner check
+);
+
+const q2 = query(
+  collection(db, "proyectos"),
+  where("accesos", "array-contains", userEmail) // Collaborator check
+);
+```
+
+## Next Steps
+
+<Card title="Documents & Resources" icon="file" href="/guide/documents-resources">
+  Learn how to attach external documents and resources to projects
+</Card>

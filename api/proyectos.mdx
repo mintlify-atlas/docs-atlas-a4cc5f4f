@@ -1,0 +1,498 @@
+---
+title: 'Proyectos Service'
+description: 'API reference for managing projects, folders, tasks, and collaborators'
+---
+
+The Proyectos service handles project management, including collaboration features, folder organization, and task tracking.
+
+## crearProyecto
+
+Creates a new project with collaboration support.
+
+<ParamField path="userId" type="string" required>
+  The unique identifier of the project owner
+</ParamField>
+
+<ParamField path="emailOwner" type="string" required>
+  The email address of the project owner (for sharing)
+</ParamField>
+
+<ParamField path="nombre" type="string" required>
+  The name of the project
+</ParamField>
+
+<ParamField path="descripcion" type="string" required>
+  Project description (defaults to "Sin descripción" if empty)
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { crearProyecto } from './servicios/proyectos';
+
+const exito = await crearProyecto(
+  user.uid,
+  user.email,
+  "Proyecto Q1 2026",
+  "Objetivos del primer trimestre"
+);
+```
+
+<Note>
+  The project is initialized with the owner's email in both `accesos` and `ownerEmail` fields for collaboration queries.
+</Note>
+
+---
+
+## obtenerProyectos
+
+Retrieves all projects owned by or shared with the user.
+
+<ParamField path="userId" type="string" required>
+  The unique identifier of the user
+</ParamField>
+
+<ParamField path="userEmail" type="string" required>
+  The email address of the user (for finding shared projects)
+</ParamField>
+
+<ResponseField name="return" type="array">
+  Returns an array of project objects with an additional `miRol` field indicating the user's role (`owner`, `editor`, or `visor`). Returns empty array on error.
+</ResponseField>
+
+```javascript
+import { obtenerProyectos } from './servicios/proyectos';
+
+const proyectos = await obtenerProyectos(user.uid, user.email);
+
+proyectos.forEach(proyecto => {
+  console.log(`${proyecto.nombre} - Rol: ${proyecto.miRol}`);
+});
+```
+
+<Note>
+  Uses dual-query strategy: first finds projects by `userId`, then by `userEmail` in the `accesos` array. Duplicates are merged using a Map.
+</Note>
+
+---
+
+## agregarColaborador
+
+Invites a collaborator to a project with a specific role.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ParamField path="emailColaborador" type="string" required>
+  The email address of the user to invite
+</ParamField>
+
+<ParamField path="rol" type="string" required>
+  The role to assign (`editor` or `visor`)
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { agregarColaborador } from './servicios/proyectos';
+
+// Agregar editor
+await agregarColaborador("proyecto-123", "juan@example.com", "editor");
+
+// Agregar visor
+await agregarColaborador("proyecto-123", "maria@example.com", "visor");
+```
+
+<Note>
+  Adds the collaborator to both `colaboradores` (detailed list with roles) and `accesos` (simple email list for queries).
+</Note>
+
+---
+
+## actualizarRolColaborador
+
+Updates the role of an existing collaborator.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ParamField path="emailColaborador" type="string" required>
+  The email address of the collaborator
+</ParamField>
+
+<ParamField path="nuevoRol" type="string" required>
+  The new role to assign (`editor` or `visor`)
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error or if project doesn't exist
+</ResponseField>
+
+```javascript
+import { actualizarRolColaborador } from './servicios/proyectos';
+
+// Promover visor a editor
+await actualizarRolColaborador(
+  "proyecto-123",
+  "juan@example.com",
+  "editor"
+);
+```
+
+---
+
+## eliminarColaborador
+
+Removes a collaborator from a project.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ParamField path="emailColaborador" type="string" required>
+  The email address of the collaborator to remove
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error or if project doesn't exist
+</ResponseField>
+
+```javascript
+import { eliminarColaborador } from './servicios/proyectos';
+
+await eliminarColaborador("proyecto-123", "juan@example.com");
+```
+
+<Note>
+  Removes the collaborator from both `colaboradores` and `accesos` arrays.
+</Note>
+
+---
+
+## actualizarProyecto
+
+Updates project fields.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ParamField path="nuevosDatos" type="object" required>
+  Object containing the fields to update (e.g., `{ nombre: "Nuevo nombre", status: "archived" }`)
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { actualizarProyecto } from './servicios/proyectos';
+
+await actualizarProyecto("proyecto-123", {
+  nombre: "Proyecto Q1 2026 - Actualizado",
+  status: "active",
+  descripcion: "Nueva descripción"
+});
+```
+
+---
+
+## suscribirProyecto
+
+Subscribes to real-time updates for a specific project.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project to watch
+</ParamField>
+
+<ParamField path="callback" type="function" required>
+  Function called when the project updates. Receives the updated project object or `null` if deleted.
+</ParamField>
+
+<ResponseField name="return" type="function">
+  Returns an unsubscribe function to stop listening to updates
+</ResponseField>
+
+```javascript
+import { suscribirProyecto } from './servicios/proyectos';
+import { useEffect, useState } from 'react';
+
+function ProyectoView({ proyectoId }) {
+  const [proyecto, setProyecto] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = suscribirProyecto(proyectoId, (proyectoActualizado) => {
+      if (proyectoActualizado) {
+        setProyecto(proyectoActualizado);
+      } else {
+        // Proyecto fue eliminado
+        console.log("Proyecto eliminado");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [proyectoId]);
+
+  return <div>{proyecto?.nombre}</div>;
+}
+```
+
+---
+
+## crearCarpeta
+
+Creates a new folder within a project.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the parent project
+</ParamField>
+
+<ParamField path="nombre" type="string" required>
+  The name of the folder
+</ParamField>
+
+<ParamField path="carpetaPadreId" type="string | null" default="null">
+  The ID of the parent folder, or `null` for root level
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { crearCarpeta } from './servicios/proyectos';
+
+// Crear carpeta en raíz del proyecto
+await crearCarpeta("proyecto-123", "Documentos", null);
+
+// Crear subcarpeta
+await crearCarpeta("proyecto-123", "Subfolder", "carpeta-456");
+```
+
+---
+
+## obtenerCarpetas
+
+Retrieves folders within a project at a specific level.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ParamField path="carpetaPadreId" type="string | null" default="null">
+  The ID of the parent folder, or `null` for root level folders
+</ParamField>
+
+<ResponseField name="return" type="array">
+  Returns an array of folder objects. Returns empty array on error.
+</ResponseField>
+
+```javascript
+import { obtenerCarpetas } from './servicios/proyectos';
+
+// Obtener carpetas raíz
+const carpetasRaiz = await obtenerCarpetas("proyecto-123", null);
+
+// Obtener subcarpetas
+const subcarpetas = await obtenerCarpetas("proyecto-123", "carpeta-456");
+```
+
+---
+
+## crearTarea
+
+Creates a new task within a project.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ParamField path="titulo" type="string" required>
+  The title of the task
+</ParamField>
+
+<ParamField path="descripcion" type="string" required>
+  Task description (defaults to empty string if not provided)
+</ParamField>
+
+<ParamField path="fechaVencimiento" type="string" required>
+  Due date for the task (defaults to empty string if not provided)
+</ParamField>
+
+<ParamField path="prioridad" type="string" required>
+  Priority level (defaults to "media" if not provided)
+</ParamField>
+
+<ParamField path="asignadoA" type="string" required>
+  User assigned to the task (defaults to "Sin asignar" if not provided)
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { crearTarea } from './servicios/proyectos';
+
+await crearTarea(
+  "proyecto-123",
+  "Implementar login",
+  "Agregar autenticación con Firebase",
+  "2026-03-15",
+  "alta",
+  "Juan Pérez"
+);
+```
+
+<Note>
+  Tasks are created with `estado: 'todo'` by default.
+</Note>
+
+---
+
+## obtenerTareas
+
+Retrieves all tasks for a specific project.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ResponseField name="return" type="array">
+  Returns an array of task objects. Returns empty array on error.
+</ResponseField>
+
+```javascript
+import { obtenerTareas } from './servicios/proyectos';
+
+const tareas = await obtenerTareas("proyecto-123");
+tareas.forEach(tarea => {
+  console.log(`${tarea.titulo} - ${tarea.estado}`);
+});
+```
+
+---
+
+## moverTarea
+
+Moves a task to a different status column.
+
+<ParamField path="tareaId" type="string" required>
+  The unique identifier of the task
+</ParamField>
+
+<ParamField path="nuevoEstado" type="string" required>
+  The new status (`todo`, `doing`, `done`, etc.)
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { moverTarea } from './servicios/proyectos';
+
+// Mover a "en progreso"
+await moverTarea("tarea-789", "doing");
+
+// Completar tarea
+await moverTarea("tarea-789", "done");
+```
+
+---
+
+## actualizarTarea
+
+Updates task fields.
+
+<ParamField path="tareaId" type="string" required>
+  The unique identifier of the task
+</ParamField>
+
+<ParamField path="nuevosDatos" type="object" required>
+  Object containing the fields to update
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { actualizarTarea } from './servicios/proyectos';
+
+await actualizarTarea("tarea-789", {
+  titulo: "Implementar login con Google",
+  prioridad: "alta",
+  asignadoA: "María García"
+});
+```
+
+<Note>
+  Automatically sets `fechaEdicion` to the current date.
+</Note>
+
+---
+
+## moverItemAPapelera
+
+Moves a project, folder, or task to trash.
+
+<ParamField path="coleccion" type="string" required>
+  The collection name (`proyectos`, `carpetas`, or `tareas`)
+</ParamField>
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the item
+</ParamField>
+
+<ParamField path="estado" type="boolean" default="true">
+  `true` to move to trash, `false` to restore
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { moverItemAPapelera } from './servicios/proyectos';
+
+// Mover proyecto a papelera
+await moverItemAPapelera("proyectos", "proyecto-123", true);
+
+// Restaurar carpeta
+await moverItemAPapelera("carpetas", "carpeta-456", false);
+```
+
+---
+
+## eliminarItemFisicamente
+
+Permanently deletes a project, folder, or task from the database.
+
+<ParamField path="coleccion" type="string" required>
+  The collection name (`proyectos`, `carpetas`, or `tareas`)
+</ParamField>
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the item to delete
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { eliminarItemFisicamente } from './servicios/proyectos';
+
+await eliminarItemFisicamente("proyectos", "proyecto-123");
+```
+
+<Warning>
+  This permanently deletes the item and cannot be undone. Consider using `moverItemAPapelera` for soft deletion.
+</Warning>

@@ -1,0 +1,742 @@
+---
+title: 'Real-Time Collaboration'
+description: 'Work together seamlessly with live editing, presence awareness, and team communication'
+icon: 'users'
+---
+
+## Overview
+
+NoteMV is built for real-time collaboration, allowing teams to work together seamlessly across documents, tasks, and projects. Powered by Firebase, all changes sync instantly across connected users.
+
+<CardGroup cols={2}>
+  <Card title="Live Presence" icon="circle-dot">
+    See who's viewing and editing in real-time
+  </Card>
+  <Card title="Instant Sync" icon="bolt">
+    Changes appear across all users within milliseconds
+  </Card>
+  <Card title="Role-Based Access" icon="shield">
+    Granular permissions for owners, editors, and viewers
+  </Card>
+  <Card title="Team Chat" icon="messages">
+    Built-in communication within every project
+  </Card>
+</CardGroup>
+
+## Permission System
+
+### Three Access Levels
+
+NoteMV uses a role-based permission model:
+
+<Tabs>
+  <Tab title="Owner (Dueño)">
+    **Full administrative control**
+    
+    **Can:**
+    - Create, edit, and delete any project content
+    - Invite new collaborators
+    - Change collaborator roles
+    - Remove team members
+    - Delete the entire project
+    - Edit project metadata (name, description, repo URL)
+    - Manage external documents
+    - Create and move tasks
+    - View all version history
+    
+    **Restrictions:**
+    - Only one owner per project
+    - Cannot transfer ownership (future feature)
+    
+    **Visual Indicator:**
+    ```
+    [Dueño] badge - Yellow border, crown emoji
+    ```
+  </Tab>
+  
+  <Tab title="Editor">
+    **Read + Write access**
+    
+    **Can:**
+    - Create, edit, and delete documents
+    - Create and organize folders
+    - Move files between folders
+    - Create and manage tasks on Kanban
+    - Update task status and assignments
+    - Participate in project chat
+    - View version history
+    - Export PDFs
+    
+    **Restrictions:**
+    - Cannot delete projects
+    - Cannot invite/remove collaborators
+    - Cannot change others' roles
+    - Cannot edit project metadata
+    
+    **Visual Indicator:**
+    ```
+    [Editor] badge - Blue border, pencil emoji
+    ```
+  </Tab>
+  
+  <Tab title="Visor (Viewer)">
+    **Read-only access**
+    
+    **Can:**
+    - View all documents
+    - Browse folder structure
+    - See Kanban board and tasks
+    - Read chat messages
+    - Export PDFs of documents
+    - View version history
+    
+    **Restrictions:**
+    - Cannot create or edit content
+    - Cannot move or delete files
+    - Cannot create tasks
+    - Cannot send chat messages (view only)
+    - Cannot change any settings
+    
+    **Visual Indicator:**
+    ```
+    [Visor] badge - Gray border, eye emoji
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Permission checks happen both client-side (UI) and server-side (Firestore security rules).
+</Note>
+
+## Inviting Collaborators
+
+### Invitation Process
+
+<Steps>
+  <Step title="Access Project Settings">
+    Open your project and click **"🔗 Invitar"** button (Owner only)
+  </Step>
+  
+  <Step title="Enter Email Address">
+    Type the collaborator's email in the modal form
+  </Step>
+  
+  <Step title="Select Permission Level">
+    Choose between:
+    - 👀 **Visor** - Read-only access
+    - ✏️ **Editor** - Read and write access
+  </Step>
+  
+  <Step title="Copy Invitation Link">
+    System generates:
+    - Platform URL
+    - Project name
+    - Invitation message
+    
+    Link is automatically copied to clipboard
+  </Step>
+  
+  <Step title="Share Link">
+    Send via:
+    - Email
+    - Slack/Teams
+    - Any messaging platform
+  </Step>
+</Steps>
+
+**Generated Invitation:**
+
+```
+Hola! 🚀 Te invito a colaborar en "Project Name".
+Accede: https://notemv.com
+```
+
+<Tip>
+  Collaborators must have a NoteMV account (Google sign-in) to accept invitations. They'll need to log in before accessing shared projects.
+</Tip>
+
+## Managing Team Members
+
+### Team Management Panel
+
+Click **"👥 Equipo"** to view and manage collaborators:
+
+```
+┌────────────────────────────────────────┐
+│ 👥 Gestionar Equipo                [X] │
+├────────────────────────────────────────┤
+│ owner@email.com              👑        │
+│ Propietario                            │
+├────────────────────────────────────────┤
+│ editor@email.com    [Editor ▼]  🗑️   │
+│ Agregado: 12/01/2024                   │
+├────────────────────────────────────────┤
+│ viewer@email.com    [Visor ▼]   🗑️   │
+│ Agregado: 15/01/2024                   │
+└────────────────────────────────────────┘
+```
+
+### Changing Roles
+
+<Accordion title="Role Modification">
+  **To change a collaborator's role:**
+  
+  1. Open Team Management panel
+  2. Locate the user in the list
+  3. Click the role dropdown next to their name
+  4. Select new role (Visor or Editor)
+  5. Confirm the change
+  
+  **Effects:**
+  - Change applies immediately
+  - User's UI updates in real-time
+  - New permissions take effect without refresh
+  - Notification sent to user (future feature)
+</Accordion>
+
+### Removing Collaborators
+
+<Warning>
+  Removing a collaborator immediately revokes all access. They will be kicked from the project if currently active.
+</Warning>
+
+**Removal Process:**
+
+<Steps>
+  <Step title="Click Trash Icon">
+    Red 🗑️ icon next to user's name
+  </Step>
+  
+  <Step title="Confirm Action">
+    Browser confirmation dialog appears
+  </Step>
+  
+  <Step title="User Removed">
+    - User disappears from team list
+    - Access revoked immediately
+    - If online, they're redirected to projects list
+  </Step>
+</Steps>
+
+## Real-Time Document Editing
+
+### Presence Awareness
+
+When multiple users view the same document:
+
+**Active User Display:**
+
+```
+Header: [Avatar] [Avatar] [Avatar] • 3 online
+```
+
+**Features:**
+- Profile photo or colored circle with initial
+- Hover shows full name
+- Green pulsing dot indicates active status
+- Count updates as users join/leave
+
+### How Presence Works
+
+<Tabs>
+  <Tab title="Joining">
+    **When you open a document:**
+    
+    1. `registrarPresencia()` called with document ID and user info
+    2. User added to Firestore `presencia` collection
+    3. Timestamp and metadata stored
+    4. All viewers notified via subscription
+    5. Avatar appears in header
+  </Tab>
+  
+  <Tab title="Monitoring">
+    **While viewing:**
+    
+    - `suscribirPresencia()` watches for changes
+    - New users trigger avatar additions
+    - Departing users trigger removals
+    - Count badge updates automatically
+    - Filters out your own presence
+  </Tab>
+  
+  <Tab title="Leaving">
+    **When you exit:**
+    
+    1. `retirarPresencia()` called on unmount
+    2. Your document removed from presence collection
+    3. Other users see your avatar disappear
+    4. Count decreases by one
+    5. Cleanup happens automatically
+  </Tab>
+</Tabs>
+
+<Note>
+  Presence uses Firestore subcollections under each document. Automatic cleanup prevents ghost users.
+</Note>
+
+### Live Content Sync
+
+**How real-time editing works:**
+
+<CardGroup cols={2}>
+  <Card title="Local Changes" icon="keyboard">
+    You type in editor → Auto-save triggers → Firestore updated
+  </Card>
+  <Card title="Remote Changes" icon="cloud">
+    Other user saves → Firestore notifies → Your editor updates
+  </Card>
+  <Card title="Conflict Prevention" icon="shield">
+    Local changes marked with flag to prevent self-overwrite loops
+  </Card>
+  <Card title="Merge Strategy" icon="code-merge">
+    Last write wins (no operational transform yet)
+  </Card>
+</CardGroup>
+
+**Sync Flow:**
+
+```
+   User A Types
+       ↓
+  Auto-Save (2s)
+       ↓
+   Firestore
+       ↓
+   onSnapshot
+       ↓
+   User B Editor
+```
+
+<Warning>
+  NoteMV uses a "last write wins" strategy. Simultaneous edits to the same paragraph may result in one user's changes overwriting the other's. Use chat to coordinate on active editing.
+</Warning>
+
+## Project Chat
+
+### Terminal-Style Communication
+
+Each project includes a built-in chat interface:
+
+**Chat Button:**
+- Fixed position: bottom-right corner
+- Appears on all project views
+- Green border with terminal aesthetic
+- Red notification badge when new messages arrive
+- `>_` command prompt icon
+
+### Using Chat
+
+<Tabs>
+  <Tab title="Opening Chat">
+    **Accessing:**
+    
+    - Click floating button in bottom-right
+    - Chat expands to 400x500px window
+    - Message history loads instantly
+    - Auto-scrolls to latest message
+    
+    **Notification:**
+    - Red pulsing dot appears on button
+    - Clears when you open chat
+    - Only shows for new messages while minimized
+  </Tab>
+  
+  <Tab title="Sending Messages">
+    **Composing:**
+    
+    1. Type in bottom input field
+    2. Press Enter to send
+    3. Message appears immediately
+    4. Syncs to all team members
+    
+    **Format:**
+    ```
+    root@local:~$ Your message here
+    editor@local:~$ Response from editor
+    ```
+    
+    Color coding:
+    - **Blue** - Your messages (root)
+    - **Purple** - Other users
+  </Tab>
+  
+  <Tab title="Reading History">
+    **Message Display:**
+    
+    - Chronological order (oldest to newest)
+    - Username shown as Unix-style prompt
+    - Green text for message content
+    - Timestamps stored but not displayed (future)
+    - Scroll to view earlier messages
+    
+    **Loading:**
+    - History loads on project open
+    - Real-time updates via Firestore subscription
+    - New messages animate in with fade
+  </Tab>
+</Tabs>
+
+### Chat Features
+
+<CardGroup cols={2}>
+  <Card title="Persistent History" icon="database">
+    All messages stored in Firestore, never lost
+  </Card>
+  <Card title="Real-Time" icon="bolt">
+    Messages appear instantly across all users
+  </Card>
+  <Card title="User Identification" icon="user">
+    Username displayed with each message
+  </Card>
+  <Card title="Scroll Management" icon="arrow-down">
+    Auto-scroll to bottom on new messages
+  </Card>
+</CardGroup>
+
+**Chat Limitations:**
+
+<Warning>
+  - No rich text formatting (plain text only)
+  - No file attachments
+  - No edit/delete after sending
+  - No read receipts
+  - No direct messages (project-wide only)
+</Warning>
+
+## Shared Project Visibility
+
+Projects you don't own appear in a special section:
+
+### "Compartidos Conmigo" View
+
+**List Display:**
+
+```
+┌─────────────────────────────────┐
+│ Compartidos conmigo          3  │
+├─────────────────────────────────┤
+│ 👥 Frontend Redesign   [Editor] │
+│ De: owner@company.com           │
+│ Updating UI components...       │
+├─────────────────────────────────┤
+│ 👥 API Documentation   [Visor]  │
+│ De: backend@company.com         │
+│ REST API reference docs         │
+└─────────────────────────────────┘
+```
+
+**Card Information:**
+- 👥 Shared project icon
+- Your role badge (Editor/Visor)
+- Owner's email
+- Project description
+- Blue theme to distinguish from owned projects
+
+<Tip>
+  Shared projects function identically to owned projects, within the limits of your assigned role.
+</Tip>
+
+## Real-Time Task Updates
+
+### Kanban Synchronization
+
+Task changes sync across all team members:
+
+**Update Types:**
+
+<Accordion title="Task Creation">
+  When anyone creates a task:
+  - Task appears on all boards instantly
+  - Placed in "POR HACER" column
+  - Count badges update
+  - Metrics dashboard refreshes
+</Accordion>
+
+<Accordion title="Task Movement">
+  When someone drags a task:
+  - Optimistic update on their board
+  - Firestore write
+  - All other users see movement
+  - Column counts recalculate
+  - Smooth animation for remote users
+</Accordion>
+
+<Accordion title="Task Editing">
+  When task details change:
+  - Edit modal updates immediately
+  - Card content refreshes
+  - Assignments update
+  - Priority badges change
+  - Due dates modify
+</Accordion>
+
+<Note>
+  Kanban uses the `obtenerTareas()` function with Firestore listeners for real-time updates.
+</Note>
+
+## Version Control & History
+
+### Automatic Snapshots
+
+NoteMV automatically creates version history:
+
+**Snapshot Triggers:**
+
+<Steps>
+  <Step title="Every 20 Minutes">
+    While editing, system creates checkpoint
+    
+    Label: "Auto - 20min"
+  </Step>
+  
+  <Step title="On Exit">
+    When leaving editor, final version saved
+    
+    Label: "Auto - Al salir"
+  </Step>
+  
+  <Step title="Manual Save">
+    Explicit save button creates version (optional)
+    
+    Label: Custom or default
+  </Step>
+</Steps>
+
+### Accessing History
+
+Click **⏳ Time Machine** in editor header:
+
+**Version List Shows:**
+- Timestamp of each snapshot
+- User who made changes
+- Version label/reason
+- Preview of content
+
+**Restoring Versions:**
+
+<Warning>
+  Restoring a version **overwrites** the current document. This cannot be undone (though it creates a new snapshot).
+</Warning>
+
+<Steps>
+  <Step title="Browse Versions">
+    Click ⏳ to open Time Machine modal
+  </Step>
+  
+  <Step title="Select Version">
+    Click on a historical snapshot
+  </Step>
+  
+  <Step title="Preview Changes">
+    Review title and content from that point
+  </Step>
+  
+  <Step title="Confirm Restore">
+    Click "Restaurar" to revert document
+  </Step>
+  
+  <Step title="Auto-Save Triggers">
+    Restored content saves immediately
+  </Step>
+</Steps>
+
+## Collaboration Best Practices
+
+<AccordionGroup>
+  <Accordion title="Coordinate Edits">
+    **Avoid simultaneous editing:**
+    - Check presence indicators before major edits
+    - Use chat to announce: "Editing intro section"
+    - Work on different documents when possible
+    - Review version history if conflicts arise
+    
+    **When editing together:**
+    - Focus on different sections
+    - Use chat for quick questions
+    - Save frequently to share progress
+    - Don't reload page unnecessarily
+  </Accordion>
+  
+  <Accordion title="Use Permissions Wisely">
+    **Start restrictive:**
+    - Invite new members as Viewers first
+    - Promote to Editor after trust established
+    - Keep Owner role exclusive
+    - Review team list monthly
+    
+    **Grant Editor to:**
+    - Core team members
+    - Active contributors
+    - Users who need regular access
+    
+    **Keep as Viewer:**
+    - Stakeholders
+    - External reviewers
+    - Temporary consultants
+    - New hires (initially)
+  </Accordion>
+  
+  <Accordion title="Communicate Effectively">
+    **Use chat for:**
+    - Quick questions
+    - Status updates
+    - Coordinating edits
+    - Clarifying tasks
+    
+    **Use documents for:**
+    - Detailed explanations
+    - Decisions and rationale
+    - Long-form content
+    - Reference material
+    
+    **Best practices:**
+    - Check chat regularly
+    - Reference documents in chat
+    - Keep messages concise
+    - Use professional tone
+  </Accordion>
+  
+  <Accordion title="Maintain Project Hygiene">
+    **Regular cleanup:**
+    - Remove inactive collaborators
+    - Archive completed tasks
+    - Delete outdated documents
+    - Update project description
+    
+    **Team alignment:**
+    - Review permissions quarterly
+    - Update folder structure as needed
+    - Standardize naming conventions
+    - Document project workflows
+  </Accordion>
+</AccordionGroup>
+
+## Technical Architecture
+
+### Real-Time Stack
+
+NoteMV's collaboration features are powered by:
+
+<CardGroup cols={2}>
+  <Card title="Firebase Firestore" icon="database">
+    NoSQL database with real-time subscriptions
+  </Card>
+  <Card title="onSnapshot Listeners" icon="ear">
+    Live data streams for instant updates
+  </Card>
+  <Card title="React State" icon="react">
+    Local state synced with remote data
+  </Card>
+  <Card title="Optimistic Updates" icon="rocket">
+    UI updates before server confirmation
+  </Card>
+</CardGroup>
+
+### Data Structure
+
+**Firestore Collections:**
+
+```
+proyectos/{projectId}
+  ├─ colaboradores: [{email, rol, fecha}]
+  ├─ ownerEmail: string
+  ├─ nombre: string
+  └─ adjuntos: []
+
+notas/{noteId}
+  ├─ titulo: string
+  ├─ contenido: string
+  ├─ proyectoId: string
+  └─ presencia/{userId}
+      ├─ displayName: string
+      ├─ photoURL: string
+      └─ timestamp: Date
+
+tareas/{taskId}
+  ├─ titulo: string
+  ├─ estado: "todo|doing|done"
+  ├─ proyectoId: string
+  └─ asignadoA: string
+
+chat/{projectId}/mensajes/{messageId}
+  ├─ texto: string
+  ├─ uid: string
+  ├─ usuario: string
+  └─ timestamp: Date
+```
+
+<Note>
+  Security rules enforce permission checks server-side, preventing unauthorized access even if client-side checks are bypassed.
+</Note>
+
+## Troubleshooting Collaboration
+
+<AccordionGroup>
+  <Accordion title="User Can't See Project">
+    **Checklist:**
+    - ✅ User invited with valid email
+    - ✅ User logged into NoteMV
+    - ✅ User's account email matches invitation
+    - ✅ No browser cache issues
+    
+    **Solutions:**
+    - Re-invite with exact email
+    - Ask user to log out and back in
+    - Verify in Team Management panel
+    - Check Firestore `colaboradores` array
+  </Accordion>
+  
+  <Accordion title="Changes Not Syncing">
+    **Common causes:**
+    - Internet connection dropped
+    - Firestore offline mode activated
+    - Browser tab suspended
+    - Too many rapid changes
+    
+    **Fixes:**
+    - Check network indicator
+    - Refresh page
+    - Make small test edit
+    - Check browser console for errors
+  </Accordion>
+  
+  <Accordion title="Presence Not Showing">
+    **Debug steps:**
+    - Verify both users on same document
+    - Check Firestore presencia collection
+    - Ensure subscription initialized
+    - Wait 5-10 seconds for propagation
+    
+    **Workaround:**
+    - Both users refresh page
+    - Re-enter document
+    - Check Firebase console
+  </Accordion>
+  
+  <Accordion title="Permission Denied Errors">
+    **Verify:**
+    - User's role in project
+    - Firestore security rules
+    - Not attempting owner-only action
+    - Not removed from project
+    
+    **Resolution:**
+    - Check Team Management panel
+    - Owner adjusts permissions
+    - Re-invite if accidentally removed
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={3}>
+  <Card title="Projects" icon="folder" href="/features/projects">
+    Team workspace and permissions
+  </Card>
+  <Card title="Editor" icon="pen" href="/features/editor">
+    Real-time document editing
+  </Card>
+  <Card title="Kanban" icon="table-columns" href="/features/kanban">
+    Collaborative task management
+  </Card>
+</CardGroup>

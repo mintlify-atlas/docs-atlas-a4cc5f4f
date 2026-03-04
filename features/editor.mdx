@@ -1,0 +1,504 @@
+---
+title: 'Rich Text Editor'
+description: 'Notion-like editor with real-time collaboration, version history, and advanced formatting'
+icon: 'pen-to-square'
+---
+
+## Overview
+
+The NoteMV editor is a powerful, Notion-inspired rich text editor built on Quill. It provides a distraction-free writing environment with advanced formatting, real-time collaboration, and version control.
+
+<CardGroup cols={2}>
+  <Card title="Rich Formatting" icon="bold">
+    Headers, lists, links, images, and more
+  </Card>
+  <Card title="Auto-Save" icon="floppy-disk">
+    Saves changes every 2 seconds automatically
+  </Card>
+  <Card title="Real-Time Collaboration" icon="users">
+    See who's editing with you, live
+  </Card>
+  <Card title="Version History" icon="clock-rotate-left">
+    Time Machine for restoring previous versions
+  </Card>
+</CardGroup>
+
+## Opening the Editor
+
+The editor opens in several ways:
+
+<Tabs>
+  <Tab title="Quick Notes">
+    From the **Dashboard**:
+    - Click the **"+" card** for new note
+    - Click any **existing note card** to edit
+  </Tab>
+  
+  <Tab title="Project Documents">
+    From a **Project**:
+    - Click **"📝+ Nuevo Doc"** button
+    - Click any **existing document** in the file browser
+  </Tab>
+</Tabs>
+
+<Note>
+  The editor always opens in full-screen mode with the sidebar hidden, giving you maximum writing space.
+</Note>
+
+## Editor Interface
+
+### Top Navigation Bar
+
+The header provides essential controls and status:
+
+```
+⬅ Volver  /  General  /  Document Title
+
+                              [Users] Guardado  ⏳  [Auto] 🖨️ Guardar
+                                      ↓ status
+```
+
+**Left Side:**
+- **⬅ Volver** - Return to previous view (saves automatically)
+- **Breadcrumb** - Tag / Title path
+
+**Right Side:**
+- **Active Users** - Avatars of collaborators currently viewing
+- **Save Status** - "Guardando..." or "Guardado"
+- **Last Save Time** - Timestamp of most recent save
+- **⏳ Time Machine** - Open version history
+- **Auto-Save Toggle** - Enable/disable automatic saving
+- **🖨️ PDF Export** - Generate and download PDF
+- **Guardar Button** - Manual save trigger
+
+### Document Metadata
+
+Below the title, you'll find document information:
+
+<CardGroup cols={2}>
+  <Card title="Creation Date">
+    📅 Shows when the document was first created
+  </Card>
+  <Card title="Tag Selector">
+    🏷️ Dropdown to categorize the note
+  </Card>
+</CardGroup>
+
+**Available Tags:**
+- General (default)
+- React
+- Javascript
+- Python
+- Git
+
+<Tip>
+  Tags help organize and filter notes across the platform. Choose tags that match your workflow.
+</Tip>
+
+## Writing Experience
+
+### Title and Emoji
+
+Every document starts with:
+
+1. **Emoji Icon** (📝) - Large decorative emoji at the top
+2. **Title Field** - Massive 5xl heading for document name
+3. **Metadata Bar** - Creation date and tag
+4. **Content Area** - Rich text editor
+
+```
+📝
+
+Document Title Here
+
+📅 Creado: Hoy    🏷️ Etiqueta: React
+────────────────────────────────────────
+
+Start writing here...
+```
+
+### Formatting Toolbar
+
+The floating toolbar appears at the top of the content area:
+
+<Tabs>
+  <Tab title="Headers">
+    **Three header sizes:**
+    - H1 - Main section headers
+    - H2 - Subsection headers  
+    - H3 - Minor headers
+    
+    Headers are styled with decreasing size and weight.
+  </Tab>
+  
+  <Tab title="Text Formatting">
+    **Inline styles:**
+    - **Bold** - Strong emphasis
+    - *Italic* - Subtle emphasis
+    - <u>Underline</u> - Highlight text
+    - ~~Strikethrough~~ - Mark deletions
+    - > Blockquote - Quotations
+  </Tab>
+  
+  <Tab title="Lists">
+    **Three list types:**
+    - Ordered (numbered) lists
+    - Unordered (bullet) lists  
+    - ☑ Checklist (todo items)
+    
+    Lists can be nested by indenting.
+  </Tab>
+  
+  <Tab title="Media">
+    **Embedded content:**
+    - 🔗 Links - Hyperlinks to external content
+    - 🖼️ Images - Insert images by URL
+    - 🎥 Videos - Embed video players
+  </Tab>
+  
+  <Tab title="Layout">
+    **Alignment options:**
+    - Align left
+    - Align center
+    - Align right
+    - Align justify
+    
+    Plus **Clean** button to remove all formatting.
+  </Tab>
+</Tabs>
+
+### Image Management
+
+<Accordion title="Adding Images">
+  **Method 1: Toolbar Button**
+  1. Click the image icon in toolbar
+  2. Enter image URL when prompted
+  3. Image inserts at cursor position
+  
+  **Method 2: Cover Image Gallery**
+  1. Hover at top of document
+  2. Click **"🖼️ Agregar Portada"**
+  3. Search for images by keyword
+  4. Click to insert (uses Flickr random images)
+  
+  **Image Styling:**
+  - Automatically centered
+  - Max width to fit page
+  - 8px rounded corners
+  - Subtle shadow effect
+</Accordion>
+
+<Warning>
+  Images must be hosted externally. NoteMV uses URLs, not file uploads. Consider using Imgur, Cloudinary, or your own CDN.
+</Warning>
+
+## Auto-Save System
+
+### How It Works
+
+<Steps>
+  <Step title="Type Normally">
+    Make changes to title, content, or tag
+  </Step>
+  
+  <Step title="2-Second Delay">
+    Auto-save waits 2 seconds after your last keystroke
+  </Step>
+  
+  <Step title="Saves to Firestore">
+    Changes sync to database in the background
+  </Step>
+  
+  <Step title="Status Updates">
+    Header shows "Guardando..." then "Guardado"
+  </Step>
+</Steps>
+
+**Auto-Save Toggle:**
+
+The switch in the header controls auto-save:
+- **Green** - Auto-save enabled (recommended)
+- **Gray** - Auto-save disabled (manual only)
+
+<Tip>
+  Leave auto-save enabled to prevent data loss. Manual save is still available anytime.
+</Tip>
+
+## Real-Time Collaboration
+
+### Presence Awareness
+
+When multiple users view the same document:
+
+```
+[Avatar] [Avatar] • 2 online
+```
+
+**User Indicators Show:**
+- Profile photo (if available) or colored circle with initial
+- User's display name on hover
+- Live count of active collaborators
+- Green pulsing dot for "online" status
+
+### Collaborative Editing
+
+<CardGroup cols={2}>
+  <Card title="Live Updates" icon="bolt">
+    Changes from others appear in real-time via Firestore sync
+  </Card>
+  <Card title="Conflict Prevention" icon="shield">
+    Local changes are marked to prevent overwrite loops
+  </Card>
+  <Card title="Presence Registry" icon="user-check">
+    Firebase tracks who's viewing each document
+  </Card>
+  <Card title="Auto-Cleanup" icon="broom">
+    Users are removed from presence when they leave
+  </Card>
+</CardGroup>
+
+<Note>
+  Real-time sync uses Firestore subscriptions (`onSnapshot`). Changes propagate typically within 100-200ms.
+</Note>
+
+## Version History (Time Machine)
+
+### Automatic Snapshots
+
+NoteMV creates version snapshots automatically:
+
+- **Every 20 minutes** while editing
+- **On exit** when leaving the editor
+- **Manual saves** can also create versions
+
+### Accessing History
+
+Click the **⏳** icon in the header to open Time Machine:
+
+<Steps>
+  <Step title="View Version List">
+    Modal shows all saved versions with timestamps
+  </Step>
+  
+  <Step title="Preview Changes">
+    Click a version to see the diff or full content
+  </Step>
+  
+  <Step title="Restore Version">
+    Click "Restaurar" to revert to that version
+  </Step>
+  
+  <Step title="Confirmation">
+    Document restores and saves immediately
+  </Step>
+</Steps>
+
+<Accordion title="Version Metadata">
+  Each version stores:
+  - **Timestamp** - When snapshot was created
+  - **User** - Who made the changes
+  - **Title** - Document title at that time
+  - **Content** - Full HTML content
+  - **Label** - Auto reason ("Auto - 20min", "Auto - Al salir")
+</Accordion>
+
+<Warning>
+  Restoring a version **overwrites** the current document. This creates a new auto-save immediately.
+</Warning>
+
+## Export and Printing
+
+### PDF Generation
+
+Click **🖨️ PDF** to export:
+
+<Tabs>
+  <Tab title="Print Dialog">
+    Opens browser's native print dialog:
+    - Choose printer or "Save as PDF"
+    - Adjust margins and layout
+    - Select pages or page range
+  </Tab>
+  
+  <Tab title="Styling">
+    PDF export uses print-specific CSS:
+    - White background (not dark theme)
+    - Black text for readability
+    - Document title as page header
+    - Clean, professional formatting
+    - Images scale appropriately
+  </Tab>
+</Tabs>
+
+**PDF Features:**
+- Title appears as underlined header
+- Toolbar hidden automatically
+- Emoji icon removed from print
+- Metadata (date/tag) excluded
+- Clean, distraction-free output
+
+<Tip>
+  Use your browser's print preview to verify formatting before saving as PDF.
+</Tip>
+
+## Read-Only Mode
+
+### Viewer Experience
+
+When you lack edit permissions:
+
+<CardGroup cols={2}>
+  <Card title="No Toolbar">
+    Formatting toolbar is hidden completely
+  </Card>
+  <Card title="No Edit Controls">
+    Title and content are non-editable
+  </Card>
+  <Card title="View Only">
+    All content displays in "bubble" theme
+  </Card>
+  <Card title="Export Available">
+    PDF export still works for viewers
+  </Card>
+</CardGroup>
+
+**Read-Only Indicators:**
+- "Guardar" button hidden
+- Auto-save toggle hidden
+- No tag selector dropdown
+- Greyed-out content areas
+
+## Editor Shortcuts and Tips
+
+### Keyboard Navigation
+
+| Action | Shortcut | Description |
+|--------|----------|-------------|
+| Save | Click "Guardar" | Manual save trigger |
+| Exit | ⬅ Volver button | Returns to previous view |
+| Bold | Ctrl/Cmd + B | Bold selected text |
+| Italic | Ctrl/Cmd + I | Italicize selection |
+| Link | Ctrl/Cmd + K | Insert hyperlink |
+
+<Tip>
+  Most standard Quill shortcuts work in the editor. Experiment with Ctrl/Cmd + formatting keys.
+</Tip>
+
+### Writing Best Practices
+
+<AccordionGroup>
+  <Accordion title="Structure Your Content">
+    - Start with a clear title
+    - Use H1/H2/H3 for hierarchy
+    - Break text into paragraphs
+    - Use lists for sequences or options
+    - Add images to illustrate concepts
+  </Accordion>
+  
+  <Accordion title="Leverage Auto-Save">
+    - Don't worry about saving constantly
+    - Focus on writing, not file management
+    - Trust the 2-second delay
+    - Manual save only for peace of mind
+  </Accordion>
+  
+  <Accordion title="Collaborate Effectively">
+    - Check who's online before major edits
+    - Use project chat for coordination
+    - Create version snapshots before big changes
+    - Review version history to see recent edits
+  </Accordion>
+  
+  <Accordion title="Optimize for Reading">
+    - Keep paragraphs short (3-5 sentences)
+    - Use formatting sparingly
+    - Add whitespace between sections
+    - Choose descriptive link text
+    - Test PDF export for sharing
+  </Accordion>
+</AccordionGroup>
+
+## Technical Details
+
+### Editor Stack
+
+- **Quill.js** - Core rich text engine
+- **react-quill-new** - React wrapper
+- **Highlight.js** - Syntax highlighting (future use)
+- **BlotFormatter** - Image resizing
+- **Firebase Firestore** - Real-time sync
+- **react-to-print** - PDF generation
+
+### Customization
+
+The editor features extensive custom CSS:
+
+<CardGroup cols={2}>
+  <Card title="Dark Theme">
+    Custom toolbar styling with dark background and green accents
+  </Card>
+  <Card title="Typography">
+    Inter font family with generous line-height (1.8)
+  </Card>
+  <Card title="Headers">
+    Large, bold headings with subtle bottom borders
+  </Card>
+  <Card title="Images">
+    Centered with rounded corners and shadows
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Changes Not Saving">
+    **Check:**
+    - Auto-save toggle is enabled (green)
+    - You have Editor or Owner permissions
+    - Internet connection is stable
+    - No error in browser console
+    
+    **Solution:**
+    - Click manual "Guardar" button
+    - Refresh page (auto-save continues)
+    - Check project permissions with owner
+  </Accordion>
+  
+  <Accordion title="Collaborator Not Appearing">
+    **Possible causes:**
+    - They haven't opened the document yet
+    - Presence subscription hasn't initialized
+    - Firebase connection issue
+    
+    **Solution:**
+    - Wait 5-10 seconds for sync
+    - Have them refresh the page
+    - Check project access permissions
+  </Accordion>
+  
+  <Accordion title="Version History Empty">
+    **Reasons:**
+    - Document created recently (no 20min snapshots yet)
+    - First time editing this document
+    - History feature disabled for quick notes
+    
+    **Workaround:**
+    - Keep editing; history builds over time
+    - Manual save creates checkpoint
+    - Exit and re-enter to trigger save
+  </Accordion>
+</AccordionGroup>
+
+## Related Features
+
+<CardGroup cols={3}>
+  <Card title="Projects" icon="folder" href="/features/projects">
+    Organize documents in projects
+  </Card>
+  <Card title="Dashboard" icon="terminal" href="/features/dashboard">
+    Quick notes and navigation
+  </Card>
+  <Card title="Collaboration" icon="users" href="/features/collaboration">
+    Real-time teamwork features
+  </Card>
+</CardGroup>

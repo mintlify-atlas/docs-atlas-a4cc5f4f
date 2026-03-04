@@ -1,0 +1,272 @@
+---
+title: 'Historial Service'
+description: 'API reference for version control and document history'
+---
+
+The Historial service provides version control functionality for notes, allowing users to save and restore previous versions.
+
+## guardarVersion
+
+Saves a new version (snapshot) of a note to its version history.
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note
+</ParamField>
+
+<ParamField path="titulo" type="string" required>
+  The title of the note at this version
+</ParamField>
+
+<ParamField path="contenido" type="string" required>
+  The content of the note at this version
+</ParamField>
+
+<ParamField path="usuario" type="object" required>
+  User object containing `uid` and `displayName` properties
+</ParamField>
+
+<ParamField path="nombreVersion" type="string" default="Punto de control">
+  Optional label for the version (e.g., "Salida", "20 min", "Borrador final")
+</ParamField>
+
+<ResponseField name="return" type="void">
+  No return value (async operation)
+</ResponseField>
+
+```javascript
+import { guardarVersion } from './servicios/historial';
+import { auth } from './firebase';
+
+const user = auth.currentUser;
+
+// Guardar con etiqueta personalizada
+await guardarVersion(
+  "nota-456",
+  "Mi Documento",
+  "Contenido actualizado...",
+  user,
+  "Versión antes de la reunión"
+);
+
+// Guardar con etiqueta por defecto
+await guardarVersion(
+  "nota-456",
+  "Mi Documento",
+  "Contenido actualizado...",
+  user
+);
+```
+
+<Note>
+  Use descriptive version names to make it easier to identify important checkpoints. The timestamp is automatically saved using `serverTimestamp()`.
+</Note>
+
+---
+
+## suscribirHistorial
+
+Subscribes to real-time updates of a note's version history.
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note
+</ParamField>
+
+<ParamField path="callback" type="function" required>
+  Function called when version history updates. Receives an array of version objects ordered by date (descending - newest first).
+</ParamField>
+
+<ResponseField name="return" type="function">
+  Returns an unsubscribe function to stop listening to version updates
+</ResponseField>
+
+```javascript
+import { suscribirHistorial } from './servicios/historial';
+import { useState, useEffect } from 'react';
+
+function HistorialPanel({ notaId }) {
+  const [versiones, setVersiones] = useState([]);
+
+  useEffect(() => {
+    const unsubscribe = suscribirHistorial(notaId, (nuevasVersiones) => {
+      setVersiones(nuevasVersiones);
+    });
+
+    return () => unsubscribe(); // Cleanup on unmount
+  }, [notaId]);
+
+  return (
+    <div>
+      <h3>Historial de Versiones</h3>
+      {versiones.map(version => (
+        <div key={version.id}>
+          <strong>{version.versionNombre}</strong>
+          <p>Por: {version.editor}</p>
+          <small>{version.fecha?.toDate().toLocaleString()}</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### Version Object Structure
+
+Each version object contains:
+
+<ResponseField name="id" type="string">
+  Unique identifier for the version
+</ResponseField>
+
+<ResponseField name="titulo" type="string">
+  The note's title at this version
+</ResponseField>
+
+<ResponseField name="contenido" type="string">
+  The note's content at this version
+</ResponseField>
+
+<ResponseField name="editor" type="string">
+  Display name of the user who saved this version (or "Alguien" if not available)
+</ResponseField>
+
+<ResponseField name="uid" type="string">
+  User ID of the version creator
+</ResponseField>
+
+<ResponseField name="versionNombre" type="string">
+  Label/name for this version (e.g., "Punto de control", "Antes de editar")
+</ResponseField>
+
+<ResponseField name="fecha" type="Timestamp">
+  Firebase server timestamp when the version was saved
+</ResponseField>
+
+```javascript
+// Example version object
+{
+  id: "version-abc123",
+  titulo: "Documento Importante",
+  contenido: "Contenido de la versión...",
+  editor: "María García",
+  uid: "user-xyz",
+  versionNombre: "Versión antes de la reunión",
+  fecha: Timestamp
+}
+```
+
+---
+
+## Usage Example: Auto-save with Version Control
+
+```javascript
+import { useState, useEffect, useRef } from 'react';
+import { guardarVersion } from './servicios/historial';
+import { actualizarNota } from './servicios/notas';
+import { auth } from './firebase';
+
+function EditorConHistorial({ notaId, notaInicial }) {
+  const [titulo, setTitulo] = useState(notaInicial.titulo);
+  const [contenido, setContenido] = useState(notaInicial.contenido);
+  const tiempoGuardado = useRef(null);
+  const user = auth.currentUser;
+
+  // Auto-guardar después de 2 segundos de inactividad
+  useEffect(() => {
+    if (tiempoGuardado.current) {
+      clearTimeout(tiempoGuardado.current);
+    }
+
+    tiempoGuardado.current = setTimeout(async () => {
+      // Actualizar la nota principal
+      await actualizarNota(notaId, titulo, contenido, notaInicial.etiqueta);
+    }, 2000);
+
+    return () => clearTimeout(tiempoGuardado.current);
+  }, [titulo, contenido]);
+
+  // Guardar versión manual
+  const handleGuardarVersion = async () => {
+    const nombre = prompt("Nombre para esta versión:");
+    if (nombre) {
+      await guardarVersion(notaId, titulo, contenido, user, nombre);
+      alert("Versión guardada!");
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={titulo}
+        onChange={(e) => setTitulo(e.target.value)}
+        placeholder="Título"
+      />
+      <textarea
+        value={contenido}
+        onChange={(e) => setContenido(e.target.value)}
+        placeholder="Contenido"
+      />
+      <button onClick={handleGuardarVersion}>
+        Guardar Versión
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+## Usage Example: Restore Previous Version
+
+```javascript
+import { suscribirHistorial } from './servicios/historial';
+import { actualizarNota } from './servicios/notas';
+import { useState, useEffect } from 'react';
+
+function RestaurarVersion({ notaId, etiqueta }) {
+  const [versiones, setVersiones] = useState([]);
+
+  useEffect(() => {
+    const unsubscribe = suscribirHistorial(notaId, setVersiones);
+    return () => unsubscribe();
+  }, [notaId]);
+
+  const restaurarVersion = async (version) => {
+    const confirmar = window.confirm(
+      `¿Restaurar versión "${version.versionNombre}"?`
+    );
+    
+    if (confirmar) {
+      await actualizarNota(
+        notaId,
+        version.titulo,
+        version.contenido,
+        etiqueta
+      );
+      alert("Versión restaurada!");
+    }
+  };
+
+  return (
+    <div>
+      {versiones.map(version => (
+        <div key={version.id}>
+          <h4>{version.versionNombre}</h4>
+          <p>Por {version.editor} - {version.fecha?.toDate().toLocaleString()}</p>
+          <button onClick={() => restaurarVersion(version)}>
+            Restaurar
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+<Note>
+  Version history is stored as a subcollection: `notas/{notaId}/versiones`. This keeps versions organized and prevents bloating the main notes collection.
+</Note>
+
+<Warning>
+  Restoring a version overwrites the current note content. Consider saving a new version before restoring to preserve the current state.
+</Warning>

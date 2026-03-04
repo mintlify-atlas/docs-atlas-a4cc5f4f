@@ -1,0 +1,290 @@
+---
+title: Creating Notes
+description: Learn how to create, edit, and organize notes in NoteMV
+---
+
+## Overview
+
+NoteMV provides a powerful rich-text editor inspired by Notion, allowing you to create beautiful, well-formatted notes. This guide covers everything from creating your first note to using advanced formatting features.
+
+## Creating Your First Note
+
+<Steps>
+  <Step title="Navigate to Notes Section">
+    From your dashboard, click on the "Notas" (Notes) section in the sidebar.
+  </Step>
+  
+  <Step title="Click 'New Note'">
+    Click the "+ NUEVA NOTA" (New Note) button at the top of the page.
+    
+    A modal editor will appear with:
+    - Title field (required)
+    - Tag selector
+    - Rich-text editor area
+  </Step>
+  
+  <Step title="Enter a Title">
+    Type a descriptive title for your note in the "Título del Documento" field.
+    
+    The title is mandatory and helps you organize and find your notes later.
+  </Step>
+  
+  <Step title="Choose a Tag">
+    Select a category tag from the available options:
+    - **General**: Default category for miscellaneous notes
+    - **React**: For React.js related content
+    - **JS**: JavaScript notes and snippets
+    - **Python**: Python code and documentation
+    - **Git**: Version control notes
+    - **Base de Datos**: Database-related content
+  </Step>
+  
+  <Step title="Write Your Content">
+    Use the rich-text editor to write your note. The editor supports:
+    - Formatted text (bold, italic, underline, strikethrough)
+    - Headings (H1, H2, H3)
+    - Lists (ordered, bullet, checkboxes)
+    - Links, images, and videos
+    - Code blocks
+    - Alignment options
+  </Step>
+  
+  <Step title="Save Your Note">
+    Click "GUARDAR CAMBIOS 💾" (Save Changes) to save your note.
+    
+    Your note will be immediately stored in the cloud and appear in your notes list.
+  </Step>
+</Steps>
+
+<Tip>
+You can also create notes directly within projects by navigating to a project and clicking "Nuevo Doc".
+</Tip>
+
+## Using the Rich-Text Editor
+
+### Formatting Toolbar
+
+The editor toolbar provides quick access to formatting options:
+
+| Button | Function | Keyboard Shortcut |
+|--------|----------|------------------|
+| **B** | Bold text | `Ctrl/Cmd + B` |
+| *I* | Italic text | `Ctrl/Cmd + I` |
+| <u>U</u> | Underline | `Ctrl/Cmd + U` |
+| ~~S~~ | Strikethrough | - |
+| 🔗 | Insert link | - |
+| 🖼️ | Insert image | - |
+| 📹 | Embed video | - |
+| ≡ | Ordered list | - |
+| • | Bullet list | - |
+| ☑️ | Checkbox list | - |
+
+### Adding Images
+
+<Steps>
+  <Step title="Click Image Button">
+    Click the image icon (🖼️) in the toolbar.
+  </Step>
+  
+  <Step title="Enter Image URL">
+    A prompt will appear asking for the image URL.
+    
+    Paste a valid image URL (supports JPEG, PNG, GIF).
+  </Step>
+  
+  <Step title="Image Appears">
+    The image will be inserted at your cursor position.
+    
+    Images are automatically:
+    - Centered in the document
+    - Responsive (max-width: 100%)
+    - Styled with rounded corners and shadow
+  </Step>
+</Steps>
+
+<Tip>
+Use the "🖼️ Agregar Portada" (Add Cover) button to search for cover images using LoremFlickr integration.
+</Tip>
+
+### Working with Headings
+
+Create document structure with headings:
+
+```markdown
+# Heading 1 - Large, bold, with underline
+## Heading 2 - Medium-large, bold
+### Heading 3 - Medium, semi-bold
+```
+
+Headings automatically include:
+- Proper spacing and margins
+- Visual hierarchy
+- Print-friendly styling
+
+### Code Blocks
+
+While the full editor view doesn't include syntax highlighting in the quick modal, the advanced EditorView supports:
+
+- Syntax highlighting with highlight.js
+- Multiple programming languages
+- Dark theme optimized for code
+- Horizontal scrolling for long lines
+
+## Advanced Editor Features
+
+### Full-Screen Editor
+
+When you open an existing note from the notes list, you enter the full EditorView with advanced features:
+
+<Tabs>
+  <Tab title="Autosave">
+    **Automatic Saving**
+    
+    The editor automatically saves your changes every 2 seconds when autosave is enabled.
+    
+    - Toggle autosave using the switch in the top bar
+    - See save status: "Guardando..." or "Guardado"
+    - Manual save button is always available
+  </Tab>
+  
+  <Tab title="Version History">
+    **Time Machine (⏳)**
+    
+    NoteMV automatically creates save points:
+    - Every 20 minutes while editing
+    - When you exit the editor
+    - Manual saves can be restored
+    
+    Access version history via the ⏳ button.
+  </Tab>
+  
+  <Tab title="Collaboration">
+    **Real-time Presence**
+    
+    See who's viewing or editing the note:
+    - Profile avatars appear in the top bar
+    - Green "• online" indicator shows active users
+    - Changes sync in real-time across all editors
+  </Tab>
+  
+  <Tab title="Export">
+    **PDF Export (🖨️)**
+    
+    Export your note as a PDF:
+    - Click the "🖨️ PDF" button
+    - Print-optimized layout automatically applied
+    - Code blocks render in light theme for printing
+  </Tab>
+</Tabs>
+
+## Organizing Notes with Tags
+
+Tags help categorize and filter your notes:
+
+### Available Tags
+
+<CardGroup cols={3}>
+  <Card title="General" icon="folder">
+    Default category for all-purpose notes
+  </Card>
+  
+  <Card title="React" icon="react">
+    React.js components, hooks, and patterns
+  </Card>
+  
+  <Card title="JS" icon="js">
+    JavaScript code snippets and documentation
+  </Card>
+  
+  <Card title="Python" icon="python">
+    Python scripts and modules
+  </Card>
+  
+  <Card title="Git" icon="git">
+    Version control commands and workflows
+  </Card>
+  
+  <Card title="Base de Datos" icon="database">
+    Database queries and schema designs
+  </Card>
+</CardGroup>
+
+### Changing Tags
+
+You can change a note's tag at any time:
+
+1. Open the note in the full editor
+2. Locate the tag dropdown in the metadata section
+3. Select a new tag from the dropdown
+4. The change is saved automatically
+
+## Adding Cover Images
+
+<Steps>
+  <Step title="Open Cover Gallery">
+    Click "🖼️ Agregar Portada" (Add Cover) button in the editor.
+  </Step>
+  
+  <Step title="Search for Images">
+    Enter a search term (e.g., "nature", "technology", "abstract").
+    
+    Click "Buscar" to fetch 12 random images from LoremFlickr.
+  </Step>
+  
+  <Step title="Select an Image">
+    Click any image from the results to set it as your note's cover.
+    
+    The cover appears at the top of your note.
+  </Step>
+  
+  <Step title="Paste Custom URL">
+    Alternatively, paste any image URL directly into the search field.
+  </Step>
+</Steps>
+
+## Organizing Notes in Projects
+
+Notes can be organized within projects for better structure:
+
+- Notes can belong to a project and optionally a folder within that project
+- Use the "Mover a..." (Move to) option to relocate notes
+- Project-based notes are stored with `proyectoId` and `carpetaId` references
+
+See [Managing Projects](/guide/managing-projects) for details on project organization.
+
+## Saving Notes
+
+### Quick Modal Save
+
+When creating a note from the modal:
+- Click "GUARDAR CAMBIOS" to save
+- The note is created in Firestore with a unique ID
+- Returns you to the notes list automatically
+
+### Full Editor Save
+
+In the advanced editor:
+- **Autosave**: Enabled by default, saves every 2 seconds
+- **Manual Save**: Click "Guardar" button anytime
+- **Exit Save**: Automatically saves when you click "← Volver"
+
+<Note>
+All saves include:
+- Title and content
+- Tag/category
+- Cover image URL (if set)
+- Timestamp (fecha, fechaEdicion)
+- User ID for ownership
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Managing Projects" icon="folder-tree" href="/guide/managing-projects">
+    Learn how to organize notes within projects and folders
+  </Card>
+  
+  <Card title="Sharing & Collaboration" icon="users" href="/guide/sharing-collaboration">
+    Discover how to collaborate on notes with your team
+  </Card>
+</CardGroup>

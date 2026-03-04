@@ -1,0 +1,310 @@
+---
+title: "KanbanBoard"
+description: "Drag-and-drop task board with team assignment and priority management"
+---
+
+## Overview
+
+`KanbanBoard` is a visual task management component using drag-and-drop functionality. It organizes tasks into three columns: To-Do, In Progress, and Done.
+
+## Usage
+
+```jsx
+import KanbanBoard from './componentes/KanbanBoard';
+
+<KanbanBoard
+  proyectoId={project.id}
+  equipo={projectTeam}
+/>
+```
+
+## Props
+
+<ParamField path="proyectoId" type="string" required>
+  The project ID to load and manage tasks for.
+</ParamField>
+
+<ParamField path="equipo" type="array" default="[]">
+  Array of team members who can be assigned to tasks.
+  
+  **Structure**:
+  ```jsx
+  [
+    { email: 'user@example.com', rol: 'owner' },
+    { email: 'collaborator@example.com', rol: 'editor' }
+  ]
+  ```
+</ParamField>
+
+## Task States
+
+Tasks flow through three states:
+
+<CardGroup cols={3}>
+  <Card title="To-Do" icon="list-check" color="#ef4444">
+    Tasks not yet started
+  </Card>
+  <Card title="In Progress" icon="hourglass" color="#eab308">
+    Tasks currently being worked on
+  </Card>
+  <Card title="Done" icon="circle-check" color="#22c55e">
+    Completed tasks
+  </Card>
+</CardGroup>
+
+## Column Configuration
+
+```jsx
+const COLUMNAS_CONFIG = {
+  todo: { 
+    id: 'todo', 
+    titulo: 'POR HACER', 
+    color: 'border-t-red-500' 
+  },
+  doing: { 
+    id: 'doing', 
+    titulo: 'EN PROCESO', 
+    color: 'border-t-yellow-500' 
+  },
+  done: { 
+    id: 'done', 
+    titulo: 'TERMINADO', 
+    color: 'border-t-green-500' 
+  }
+};
+```
+
+## State Management
+
+The component maintains several key states:
+
+- **tareas**: Array of task objects
+- **Modal states**: `isModalOpen`, `isEditModalOpen`
+- **Form states**: `titulo`, `descripcion`, `fecha`, `prioridad`, `asignado`
+- **Edit state**: `tareaEditando`
+
+## Drag and Drop
+
+Implemented using `@hello-pangea/dnd`:
+
+```jsx
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+
+const onDragEnd = async (result) => {
+  const { source, destination, draggableId } = result;
+  
+  // Validation
+  if (!destination) return;
+  if (source.droppableId === destination.droppableId && 
+      source.index === destination.index) return;
+  
+  // Update local state
+  const nuevasTareas = tareas.map(t => 
+    t.id === draggableId 
+      ? { ...t, estado: destination.droppableId } 
+      : t
+  );
+  setTareas(nuevasTareas);
+  
+  // Persist to database
+  await moverTarea(draggableId, destination.droppableId);
+};
+```
+
+## Task Management
+
+### Creating Tasks
+
+```jsx
+const handleCrear = async (e) => {
+  e.preventDefault();
+  if (!titulo) return;
+  
+  const asignadoFinal = asignado || "Sin asignar";
+  
+  await crearTarea(
+    proyectoId, 
+    titulo, 
+    descripcion, 
+    fecha, 
+    prioridad, 
+    asignadoFinal
+  );
+  
+  // Reset form
+  setTitulo("");
+  setDescripcion("");
+  setFecha("");
+  setPrioridad("media");
+  setAsignado("");
+  setIsModalOpen(false);
+  
+  cargarTareas();
+};
+```
+
+### Updating Tasks
+
+```jsx
+const handleActualizar = async (e) => {
+  e.preventDefault();
+  if (!tareaEditando || !tareaEditando.titulo) return;
+  
+  await actualizarTarea(tareaEditando.id, {
+    titulo: tareaEditando.titulo,
+    descripcion: tareaEditando.descripcion,
+    fechaVencimiento: tareaEditando.fechaVencimiento,
+    prioridad: tareaEditando.prioridad,
+    asignadoA: tareaEditando.asignadoA
+  });
+  
+  setIsEditModalOpen(false);
+  setTareaEditando(null);
+  cargarTareas();
+};
+```
+
+## Task Properties
+
+### Priority Levels
+
+<ParamField path="prioridad" type="string" default="media">
+  Task priority level:
+  - `"alta"` - High priority (red indicator)
+  - `"media"` - Medium priority (yellow indicator)
+  - `"baja"` - Low priority (blue indicator)
+</ParamField>
+
+### Task Object Structure
+
+```typescript
+interface Task {
+  id: string;
+  titulo: string;
+  descripcion?: string;
+  estado: 'todo' | 'doing' | 'done';
+  prioridad: 'alta' | 'media' | 'baja';
+  fechaVencimiento?: string;
+  asignadoA?: string;
+}
+```
+
+## Example: Usage in ProjectsView
+
+```jsx
+import KanbanBoard from '../KanbanBoard';
+
+function ProjectsView({ user }) {
+  const [proyectoActivo, setProyectoActivo] = useState(null);
+  const [tabActivo, setTabActivo] = useState('kanban');
+  
+  // Build team array from project data
+  const equipo = [
+    { 
+      email: proyectoActivo.ownerEmail, 
+      rol: 'owner' 
+    },
+    ...(proyectoActivo.colaboradores || [])
+  ];
+  
+  return (
+    <div>
+      {tabActivo === 'kanban' && (
+        <KanbanBoard
+          proyectoId={proyectoActivo.id}
+          equipo={equipo}
+        />
+      )}
+    </div>
+  );
+}
+```
+
+## UI Features
+
+### Task Card Display
+
+Each task card shows:
+- Priority badge (color-coded)
+- Due date (if set)
+- Title
+- Description (truncated to 2 lines)
+- Assignee avatar and name
+- Edit icon on hover
+
+### Visual Feedback
+
+```jsx
+// Dragging state styling
+className={`
+  ${snapshot.isDragging 
+    ? 'shadow-2xl ring-2 ring-green-500/50 rotate-2 scale-105 z-50' 
+    : ''}
+`}
+```
+
+### Column Hover State
+
+```jsx
+className={`
+  ${snapshot.isDraggingOver 
+    ? 'bg-[#111] ring-1 ring-white/10' 
+    : ''}
+`}
+```
+
+## Modal Components
+
+### Create Task Modal
+
+Fields:
+- Title (required)
+- Priority selector (alta/media/baja)
+- Due date picker
+- Team member assignment dropdown
+- Description textarea
+
+### Edit Task Modal
+
+Opens when clicking a task card. Includes all creation fields pre-populated.
+
+## Helper Functions
+
+### getNombreCorto
+
+Extracts username from email:
+
+```jsx
+const getNombreCorto = (email) => 
+  email ? email.split('@')[0] : '?';
+```
+
+## Loading Tasks
+
+```jsx
+const cargarTareas = async () => {
+  const data = await obtenerTareas(proyectoId);
+  setTareas(data);
+};
+
+// Load on mount and when project changes
+useEffect(() => {
+  cargarTareas();
+}, [proyectoId]);
+```
+
+## Styling Classes
+
+- Column headers: `text-xs tracking-widest uppercase`
+- Task cards: `bg-[#151515] rounded-r-lg border-l-4`
+- Priority colors: `border-l-red-500`, `border-l-yellow-500`, `border-l-blue-500`
+- Drag handle: `cursor-grab`
+- Hover effects: `hover:bg-[#1a1a1a]`
+
+<Note>
+Tasks are filtered by state in real-time. Moving a task updates the UI optimistically before persisting to the database.
+</Note>
+
+<Note>
+The `equipo` prop must include the project owner with `rol: 'owner'` to properly display team roles in assignment dropdowns.
+</Note>

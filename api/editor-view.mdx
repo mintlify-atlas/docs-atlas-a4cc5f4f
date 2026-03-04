@@ -1,0 +1,318 @@
+---
+title: "EditorView"
+description: "Rich text editor with real-time collaboration and version history"
+---
+
+## Overview
+
+`EditorView` is a full-featured rich text editor built with ReactQuill. It supports real-time collaboration, autosave, version history, and PDF export.
+
+## Usage
+
+```jsx
+import EditorView from './componentes/views/EditorView';
+
+<EditorView
+  user={currentUser}
+  nota={activeNote}
+  onGuardar={handleSave}
+  onVolver={handleBack}
+  readOnly={false}
+/>
+```
+
+## Props
+
+<ParamField path="user" type="object" required>
+  User object for presence tracking and version history.
+  
+  **Properties**:
+  - `uid`: User ID
+  - `displayName`: User's name
+  - `photoURL`: Profile image URL
+</ParamField>
+
+<ParamField path="nota" type="object | null" required>
+  The note object to edit. Pass `null` for new notes.
+  
+  **Properties**:
+  - `id`: Note ID (required for existing notes)
+  - `titulo`: Note title
+  - `contenido`: HTML content
+  - `etiqueta`: Category tag
+</ParamField>
+
+<ParamField path="onGuardar" type="function" required>
+  Callback function invoked when saving the note.
+  
+  **Signature**: `(id, titulo, contenido, etiqueta, cover) => Promise<void>`
+  
+  **Parameters**:
+  - `id`: Note ID (null for new notes)
+  - `titulo`: Note title
+  - `contenido`: HTML content
+  - `etiqueta`: Category/tag
+  - `cover`: Cover image URL
+</ParamField>
+
+<ParamField path="onVolver" type="function" required>
+  Callback function invoked when user exits the editor.
+  
+  **Signature**: `() => void`
+</ParamField>
+
+<ParamField path="readOnly" type="boolean" default="false">
+  If true, disables editing and shows content in read-only mode.
+</ParamField>
+
+## State Management
+
+The component manages multiple states for content, UI, and collaboration:
+
+### Content States
+- `titulo`: Document title
+- `contenido`: Document content (HTML)
+- `etiqueta`: Document category
+
+### UI States
+- `guardando`: Save operation in progress
+- `autoGuardado`: Autosave toggle
+- `ultimoGuardado`: Last save timestamp text
+- `mostrandoTimeMachine`: Version history modal visibility
+- `mostrandoGaleria`: Image gallery modal visibility
+
+### Collaboration States
+- `usuariosActivos`: Array of users currently viewing the document
+
+## Real-time Features
+
+### Live Collaboration
+
+The editor subscribes to document changes and displays active users:
+
+```jsx
+// User presence tracking
+registrarPresencia(nota.id, user);
+
+// Subscribe to changes
+suscribirNota(nota.id, (data) => {
+  if (!isLocalChange.current) {
+    setTitulo(data.titulo);
+    setContenido(data.contenido);
+    setEtiqueta(data.etiqueta);
+  }
+});
+```
+
+### Autosave
+
+Automatically saves after 2 seconds of inactivity:
+
+```jsx
+useEffect(() => {
+  if (!autoGuardado || readOnly || !nota?.id) return;
+  
+  const timer = setTimeout(async () => {
+    setGuardando(true);
+    await onGuardar(nota.id, titulo, contenido, etiqueta, '');
+    setGuardando(false);
+    setUltimoGuardado('Autoguardado ' + new Date().toLocaleTimeString());
+  }, 2000);
+  
+  return () => clearTimeout(timer);
+}, [titulo, contenido, etiqueta]);
+```
+
+### Version History
+
+Automatic snapshots every 20 minutes and on exit:
+
+```jsx
+// Auto-snapshot every 20 minutes
+useEffect(() => {
+  if (readOnly || !nota?.id) return;
+  
+  const intervalo = setInterval(async () => {
+    await guardarVersion(nota.id, titulo, contenido, user, 'Auto - 20min');
+  }, 20 * 60 * 1000);
+  
+  return () => clearInterval(intervalo);
+}, [nota?.id]);
+```
+
+## Quill Integration
+
+### Modules Configuration
+
+```jsx
+const modules = useMemo(() => {
+  if (readOnly) return { toolbar: false };
+  
+  return {
+    syntax: false,
+    toolbar: {
+      container: [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+        ['link', 'image', 'video'],
+        [{ align: [] }],
+        ['clean']
+      ],
+      handlers: { image: imageHandler }
+    },
+    blotFormatter: {}
+  };
+}, [readOnly]);
+```
+
+### Custom Image Handler
+
+```jsx
+const imageHandler = () => {
+  const url = prompt('Pegar URL de la imagen');
+  if (url && quillRef.current) {
+    const quill = quillRef.current.getEditor();
+    quill.insertEmbed(quill.getSelection()?.index || 0, 'image', url);
+  }
+};
+```
+
+## Event Handlers
+
+### handleSubmit
+
+Manual save trigger:
+
+```jsx
+const handleSubmit = async () => {
+  if (!titulo) return alert('El título es obligatorio');
+  setGuardando(true);
+  isLocalChange.current = true;
+  await onGuardar(nota?.id, titulo, contenido, etiqueta, '');
+  setGuardando(false);
+  setUltimoGuardado('Guardado manualmente');
+};
+```
+
+### handleVolverConGuardado
+
+Saves before exiting:
+
+```jsx
+const handleVolverConGuardado = async () => {
+  if (nota?.id && !readOnly) {
+    await onGuardar(nota.id, titulo, contenido, etiqueta, '');
+    await guardarVersion(nota.id, titulo, contenido, user, 'Auto - Al salir');
+  }
+  onVolver();
+};
+```
+
+### handleRestaurarVersion
+
+Restores a previous version:
+
+```jsx
+const handleRestaurarVersion = async (version) => {
+  setTitulo(version.titulo);
+  setContenido(version.contenido);
+  isLocalChange.current = true;
+  await onGuardar(nota.id, version.titulo, version.contenido, etiqueta, '');
+  alert('Documento restaurado');
+};
+```
+
+## Example: Usage in ProjectsView
+
+```jsx
+import EditorView from './views/EditorView';
+import { actualizarNota, crearNota } from '../servicios/notas';
+
+function ProjectsView({ user }) {
+  const [docEditando, setDocEditando] = useState(null);
+  
+  const handleGuardarDoc = async (id, titulo, contenido, etiqueta, cover) => {
+    if (id) {
+      await actualizarNota(id, titulo, contenido, etiqueta, cover);
+    } else {
+      const nuevoId = await crearNota(
+        user.uid,
+        titulo,
+        contenido,
+        etiqueta,
+        proyectoActivo.id,
+        carpetaActual?.id || null,
+        cover
+      );
+      if (nuevoId) {
+        setDocEditando({ id: nuevoId, titulo, contenido, etiqueta, cover });
+      }
+    }
+  };
+  
+  const cerrarEditor = () => {
+    setDocEditando(null);
+    cargarContenidoActual();
+  };
+  
+  if (docEditando) {
+    return (
+      <EditorView
+        user={user}
+        nota={docEditando === 'nuevo' ? null : docEditando}
+        onGuardar={handleGuardarDoc}
+        onVolver={cerrarEditor}
+        readOnly={!puedeEditar}
+      />
+    );
+  }
+}
+```
+
+## Additional Features
+
+### PDF Export
+
+Uses `react-to-print` for PDF generation:
+
+```jsx
+const handlePrint = useReactToPrint({
+  contentRef: printRef,
+  documentTitle: titulo || 'Documento'
+});
+```
+
+### Image Gallery
+
+Integrated image search with LoremFlickr for placeholder images.
+
+### Active Users Display
+
+Shows avatars of collaborators currently viewing the document:
+
+```jsx
+{usuariosActivos.length > 0 && (
+  <div className="flex items-center -space-x-2">
+    {usuariosActivos.map((u, i) => (
+      <img 
+        key={i}
+        src={u.photoURL} 
+        alt={u.displayName}
+        className="w-8 h-8 rounded-full border-2"
+      />
+    ))}
+    <span className="text-green-500 animate-pulse">
+      • {usuariosActivos.length} online
+    </span>
+  </div>
+)}
+```
+
+<Note>
+The editor uses `isLocalChange` ref to prevent echo effects when broadcasting changes in real-time collaboration.
+</Note>
+
+<Warning>
+Always check `readOnly` prop before allowing save operations. Viewers should not be able to edit content.
+</Warning>

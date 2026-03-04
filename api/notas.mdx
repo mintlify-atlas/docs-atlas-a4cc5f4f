@@ -1,0 +1,382 @@
+---
+title: 'Notas Service'
+description: 'API reference for managing notes in NoteMV'
+---
+
+The Notas service provides functions for creating, reading, updating, and deleting notes, as well as real-time collaboration features.
+
+## crearNota
+
+Creates a new note in the database and returns its ID.
+
+<ParamField path="userId" type="string" required>
+  The unique identifier of the user creating the note
+</ParamField>
+
+<ParamField path="titulo" type="string" required>
+  The title of the note
+</ParamField>
+
+<ParamField path="contenido" type="string" required>
+  The content/body of the note
+</ParamField>
+
+<ParamField path="etiqueta" type="string" required>
+  Label/tag for categorizing the note (defaults to "General" if empty)
+</ParamField>
+
+<ParamField path="proyectoId" type="string | null" default="null">
+  Optional project ID to associate the note with a project
+</ParamField>
+
+<ParamField path="carpetaId" type="string | null" default="null">
+  Optional folder ID to organize the note within a folder
+</ParamField>
+
+<ParamField path="cover" type="string" default="">
+  Optional cover image URL for the note
+</ParamField>
+
+<ResponseField name="return" type="string | null">
+  Returns the newly created note's document ID on success, or `null` on error
+</ResponseField>
+
+```javascript
+import { crearNota } from './servicios/notas';
+
+const notaId = await crearNota(
+  user.uid,
+  "Mi primera nota",
+  "Contenido de la nota",
+  "Trabajo",
+  "proyecto-123",
+  null,
+  "https://example.com/cover.jpg"
+);
+
+if (notaId) {
+  console.log("Nota creada con ID:", notaId);
+}
+```
+
+<Note>
+  The function automatically sets `fecha` to the current date and `enPapelera` to `false`.
+</Note>
+
+---
+
+## obtenerNotas
+
+Retrieves all notes for a specific user.
+
+<ParamField path="userId" type="string" required>
+  The unique identifier of the user whose notes to fetch
+</ParamField>
+
+<ResponseField name="return" type="array">
+  Returns an array of note objects, each containing all note data plus an `id` field. Returns empty array on error.
+</ResponseField>
+
+```javascript
+import { obtenerNotas } from './servicios/notas';
+
+const notas = await obtenerNotas(user.uid);
+notas.forEach(nota => {
+  console.log(nota.id, nota.titulo, nota.contenido);
+});
+```
+
+---
+
+## obtenerNotasDeProyecto
+
+Retrieves all notes associated with a specific project.
+
+<ParamField path="proyectoId" type="string" required>
+  The unique identifier of the project
+</ParamField>
+
+<ResponseField name="return" type="array">
+  Returns an array of note objects belonging to the project. Returns empty array on error.
+</ResponseField>
+
+```javascript
+import { obtenerNotasDeProyecto } from './servicios/notas';
+
+const notasDelProyecto = await obtenerNotasDeProyecto("proyecto-123");
+console.log(`Notas encontradas: ${notasDelProyecto.length}`);
+```
+
+---
+
+## actualizarNota
+
+Updates the content and metadata of an existing note.
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note to update
+</ParamField>
+
+<ParamField path="titulo" type="string" required>
+  The updated title
+</ParamField>
+
+<ParamField path="contenido" type="string" required>
+  The updated content
+</ParamField>
+
+<ParamField path="etiqueta" type="string" required>
+  The updated label/tag
+</ParamField>
+
+<ParamField path="cover" type="string" default="">
+  The updated cover image URL
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { actualizarNota } from './servicios/notas';
+
+const exito = await actualizarNota(
+  "nota-456",
+  "Título actualizado",
+  "Nuevo contenido",
+  "Personal",
+  "https://example.com/new-cover.jpg"
+);
+```
+
+<Note>
+  Automatically sets `fechaEdicion` to the current date when updating.
+</Note>
+
+---
+
+## moverNota
+
+Moves a note to a different project and/or folder.
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note to move
+</ParamField>
+
+<ParamField path="nuevoProyectoId" type="string" required>
+  The ID of the destination project
+</ParamField>
+
+<ParamField path="nuevaCarpetaId" type="string | null" required>
+  The ID of the destination folder, or `null` for root level
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { moverNota } from './servicios/notas';
+
+// Mover nota a otro proyecto y carpeta
+await moverNota("nota-456", "proyecto-789", "carpeta-123");
+
+// Mover nota a otro proyecto sin carpeta
+await moverNota("nota-456", "proyecto-789", null);
+```
+
+---
+
+## moverNotaAPapelera
+
+Moves a note to trash or restores it from trash.
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note
+</ParamField>
+
+<ParamField path="estado" type="boolean" default="true">
+  `true` to move to trash, `false` to restore from trash
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { moverNotaAPapelera } from './servicios/notas';
+
+// Mover a papelera
+await moverNotaAPapelera("nota-456", true);
+
+// Restaurar de papelera
+await moverNotaAPapelera("nota-456", false);
+```
+
+---
+
+## eliminarNotaFisicamente
+
+Permanently deletes a note from the database. This action cannot be undone.
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note to delete
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  Returns `true` on success, `false` on error
+</ResponseField>
+
+```javascript
+import { eliminarNotaFisicamente } from './servicios/notas';
+
+const confirmado = confirm("¿Eliminar permanentemente?");
+if (confirmado) {
+  await eliminarNotaFisicamente("nota-456");
+}
+```
+
+<Warning>
+  This permanently deletes the note. Consider using `moverNotaAPapelera` for soft deletion instead.
+</Warning>
+
+---
+
+## suscribirNota
+
+Subscribes to real-time updates for a specific note.
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note to watch
+</ParamField>
+
+<ParamField path="callback" type="function" required>
+  Function called when the note updates. Receives the updated note object with `id` field.
+</ParamField>
+
+<ResponseField name="return" type="function">
+  Returns an unsubscribe function to stop listening to updates
+</ResponseField>
+
+```javascript
+import { suscribirNota } from './servicios/notas';
+import { useEffect, useState } from 'react';
+
+function NotaEditor({ notaId }) {
+  const [nota, setNota] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = suscribirNota(notaId, (notaActualizada) => {
+      setNota(notaActualizada);
+    });
+
+    return () => unsubscribe(); // Cleanup on unmount
+  }, [notaId]);
+
+  return <div>{nota?.titulo}</div>;
+}
+```
+
+---
+
+## registrarPresencia
+
+Registers a user's presence on a note for real-time collaboration.
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note
+</ParamField>
+
+<ParamField path="user" type="object" required>
+  User object containing: `uid`, `displayName`, `photoURL`, and `email`
+</ParamField>
+
+<ResponseField name="return" type="void">
+  No return value (async operation)
+</ResponseField>
+
+```javascript
+import { registrarPresencia } from './servicios/notas';
+import { auth } from './firebase';
+
+const user = auth.currentUser;
+await registrarPresencia("nota-456", user);
+```
+
+<Note>
+  Each user is assigned a random color for their cursor/presence indicator.
+</Note>
+
+---
+
+## retirarPresencia
+
+Removes a user's presence from a note when they leave.
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note
+</ParamField>
+
+<ParamField path="userId" type="string" required>
+  The unique identifier of the user leaving
+</ParamField>
+
+<ResponseField name="return" type="void">
+  No return value (async operation)
+</ResponseField>
+
+```javascript
+import { retirarPresencia } from './servicios/notas';
+
+useEffect(() => {
+  return () => {
+    // Cleanup cuando el componente se desmonta
+    retirarPresencia(notaId, user.uid);
+  };
+}, []);
+```
+
+---
+
+## suscribirPresencia
+
+Subscribes to real-time presence updates for a note (who's currently viewing/editing).
+
+<ParamField path="notaId" type="string" required>
+  The unique identifier of the note
+</ParamField>
+
+<ParamField path="callback" type="function" required>
+  Function called when presence changes. Receives an array of user objects currently present.
+</ParamField>
+
+<ResponseField name="return" type="function">
+  Returns an unsubscribe function to stop listening to presence updates
+</ResponseField>
+
+```javascript
+import { suscribirPresencia } from './servicios/notas';
+import { useState, useEffect } from 'react';
+
+function UsuariosActivos({ notaId }) {
+  const [usuarios, setUsuarios] = useState([]);
+
+  useEffect(() => {
+    const unsubscribe = suscribirPresencia(notaId, (listaUsuarios) => {
+      setUsuarios(listaUsuarios);
+    });
+
+    return () => unsubscribe();
+  }, [notaId]);
+
+  return (
+    <div>
+      {usuarios.map(u => (
+        <div key={u.uid} style={{ color: u.color }}>
+          {u.displayName}
+        </div>
+      ))}
+    </div>
+  );
+}
+```

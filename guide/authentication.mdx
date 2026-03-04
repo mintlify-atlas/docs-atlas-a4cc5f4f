@@ -1,0 +1,137 @@
+---
+title: Authentication
+description: Sign in to NoteMV using Google authentication and manage your sessions
+---
+
+## Overview
+
+NoteMV uses Google Sign-In for secure authentication. This guide walks you through the login process, session management, and logout.
+
+## Signing In with Google
+
+<Steps>
+  <Step title="Launch NoteMV">
+    Open NoteMV in your browser. You'll be greeted with the 3D welcome scene.
+  </Step>
+  
+  <Step title="Click 'Enter' or Sign In">
+    Click the "Enter" button on the welcome screen to initiate the Google authentication flow.
+  </Step>
+  
+  <Step title="Select Your Google Account">
+    A popup window will appear asking you to:
+    - Choose your Google account
+    - Grant NoteMV permission to access your basic profile information (name, email, profile picture)
+  </Step>
+  
+  <Step title="Wait for Authentication">
+    You'll see a loading message: "ESTABLECIENDO ENLACE SEGURO..." (Establishing Secure Link)
+    
+    Once authenticated, you'll be automatically redirected to your dashboard.
+  </Step>
+</Steps>
+
+<Tip>
+NoteMV uses Firebase Authentication with Google OAuth 2.0, ensuring your credentials are never stored on our servers.
+</Tip>
+
+## Session Management
+
+Your session is automatically maintained by Firebase Authentication:
+
+- **Persistent Sessions**: You remain logged in even after closing the browser
+- **Secure Tokens**: Authentication tokens are refreshed automatically in the background
+- **Multi-Device**: You can access NoteMV from multiple devices with the same account
+
+### What Happens After Login
+
+Once authenticated, NoteMV stores your user information:
+
+```javascript
+// User object structure
+{
+  uid: "unique-user-id",
+  email: "your-email@gmail.com",
+  displayName: "Your Name",
+  photoURL: "https://..."
+}
+```
+
+This information is used to:
+- Identify your notes and projects
+- Display your profile in collaboration features
+- Show your avatar when editing documents with others
+
+## Logging Out
+
+<Steps>
+  <Step title="Open User Menu">
+    Click your profile picture or name in the top-right corner of the dashboard.
+  </Step>
+  
+  <Step title="Select 'Logout'">
+    Click the "Cerrar Sesión" (Logout) button in the dropdown menu.
+  </Step>
+  
+  <Step title="Confirm Logout">
+    You'll be immediately signed out and returned to the welcome screen.
+    
+    All your data remains securely stored in the cloud.
+  </Step>
+</Steps>
+
+<Warning>
+Logging out will:
+- End your current session
+- Clear authentication tokens from your browser
+- Return you to the welcome screen
+
+Your notes and projects remain safe and will be available when you sign back in.
+</Warning>
+
+## Troubleshooting
+
+### Authentication Fails
+
+If you encounter issues signing in:
+
+1. **Check Popup Blockers**: Ensure your browser allows popups for NoteMV
+2. **Clear Browser Cache**: Sometimes cached data can interfere with authentication
+3. **Try Incognito Mode**: This rules out browser extension conflicts
+4. **Check Google Account Status**: Ensure your Google account is active and accessible
+
+### Session Expired
+
+If your session expires (rare):
+
+- You'll be automatically redirected to the login screen
+- Simply sign in again to restore your session
+- All your data will be immediately accessible
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Strong Google Password" icon="lock">
+    Your NoteMV security depends on your Google account security. Use a strong, unique password.
+  </Card>
+  
+  <Card title="Enable 2FA on Google" icon="shield">
+    Two-factor authentication adds an extra layer of security to your account.
+  </Card>
+  
+  <Card title="Sign Out on Shared Devices" icon="arrow-right-from-bracket">
+    Always log out when using NoteMV on public or shared computers.
+  </Card>
+  
+  <Card title="Review Google Permissions" icon="user-shield">
+    Periodically review app permissions in your Google Account settings.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+Now that you're logged in, learn how to:
+
+<Card title="Creating Notes" icon="pen" href="/guide/creating-notes">
+  Start creating and organizing your first notes
+</Card>
